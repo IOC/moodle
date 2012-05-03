@@ -3431,7 +3431,7 @@ function user_not_fully_set_up($user) {
     if (isguestuser($user)) {
         return false;
     }
-    return (empty($user->firstname) or empty($user->lastname) or empty($user->email) or over_bounce_threshold($user));
+    return (empty($user->firstname) or empty($user->lastname) or over_bounce_threshold($user));
 }
 
 /**
@@ -5490,6 +5490,10 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml='', $a
             mtrace('Error: lib/moodlelib.php email_to_user(): '.$nulluser);
         }
         return false;
+    }
+
+    if (empty($user->email)){
+        return true;
     }
 
     if (!empty($user->deleted)) {
