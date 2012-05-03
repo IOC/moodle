@@ -184,7 +184,7 @@ if ($usernew = $userform->get_data()) {
     if ($CFG->emailchangeconfirmation) {
         // Users with 'moodle/user:update' can change their email address immediately
         // Other users require a confirmation email
-        if (isset($usernew->email) and $user->email != $usernew->email && !has_capability('moodle/user:update', $systemcontext)) {
+        if (!empty($usernew->email) and $user->email != $usernew->email && !has_capability('moodle/user:update', $systemcontext)) {
             $a = new stdClass();
             $a->newemail = $usernew->preference_newemail = $usernew->email;
             $usernew->preference_newemailkey = random_string(20);
