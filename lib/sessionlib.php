@@ -429,17 +429,13 @@ class legacy_file_session extends session_stub {
 
         ini_set('session.gc_maxlifetime', $CFG->sessiontimeout);
 
-        // make sure sessions dir exists and is writable, throws exception if not
-        make_upload_directory('sessions');
-
         // Need to disable debugging since disk_free_space()
         // will fail on very large partitions (see MDL-19222)
-        $freespace = @disk_free_space($CFG->dataroot.'/sessions');
+        $freespace = @disk_free_space(session_save_path());
         // MDL-43039: disk_free_space() returns null if disabled.
         if (!($freespace > 2048) and ($freespace !== false) and ($freespace !== null)) {
             print_error('sessiondiskfull', 'error');
         }
-        ini_set('session.save_path', $CFG->dataroot .'/sessions');
     }
     /**
      * Check for existing session with id $sid
@@ -450,7 +446,7 @@ class legacy_file_session extends session_stub {
         global $CFG;
 
         $sid = clean_param($sid, PARAM_FILE);
-        $sessionfile = "$CFG->dataroot/sessions/sess_$sid";
+        $sessionfile = session_save_path()."/sess_$sid";
         return file_exists($sessionfile);
     }
 }
@@ -848,7 +844,7 @@ function session_kill_all() {
     }
 
     if (session_is_legacy()) {
-        $sessiondir = "$CFG->dataroot/sessions";
+        $sessiondir = session_save_path();
         if (is_dir($sessiondir)) {
             foreach (glob("$sessiondir/sess_*") as $filename) {
                 @unlink($filename);
@@ -875,7 +871,7 @@ function session_touch($sid) {
 
     if (session_is_legacy()) {
         $sid = clean_param($sid, PARAM_FILE);
-        $sessionfile = clean_param("$CFG->dataroot/sessions/sess_$sid", PARAM_FILE);
+        $sessionfile = clean_param(session_save_path()."/sess_$sid", PARAM_FILE);
         if (file_exists($sessionfile)) {
             // if the file is locked it means that it will be updated anyway
             @touch($sessionfile);
@@ -900,7 +896,7 @@ function session_kill($sid) {
 
     if (session_is_legacy()) {
         $sid = clean_param($sid, PARAM_FILE);
-        $sessionfile = "$CFG->dataroot/sessions/sess_$sid";
+        $sessionfile = session_save_path()."/sess_$sid";
         if (file_exists($sessionfile)) {
             @unlink($sessionfile);
         }
