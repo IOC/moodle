@@ -423,16 +423,12 @@ class legacy_file_session extends session_stub {
 
         ini_set('session.gc_maxlifetime', $CFG->sessiontimeout);
 
-        // make sure sessions dir exists and is writable, throws exception if not
-        make_upload_directory('sessions');
-
         // Need to disable debugging since disk_free_space()
         // will fail on very large partitions (see MDL-19222)
         $freespace = @disk_free_space($CFG->dataroot.'/sessions');
         if (!($freespace > 2048) and $freespace !== false) {
             print_error('sessiondiskfull', 'error');
         }
-        ini_set('session.save_path', $CFG->dataroot .'/sessions');
     }
     /**
      * Check for existing session with id $sid
