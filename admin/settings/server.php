@@ -193,6 +193,8 @@ $temp->add(new admin_setting_configtext('curlcache', new lang_string('curlcache'
 
 $temp->add(new admin_setting_configtext('curltimeoutkbitrate', new lang_string('curltimeoutkbitrate', 'admin'),
                                         new lang_string('curltimeoutkbitrate_help', 'admin'), 56, PARAM_INT));
+$temp->add(new admin_setting_configcheckbox('outputcompression', new lang_string('outputcompression', 'admin'),
+                                            new lang_string('configoutputcompression', 'admin'), 0));
 /* //TODO: we need to fix code instead of relying on slow rcache, enable this once we have some code that is actually using it
 $temp->add(new admin_setting_special_selectsetup('cachetype', new lang_string('cachetype', 'admin'),
                                           new lang_string('configcachetype', 'admin'), '',
