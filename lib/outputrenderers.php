@@ -890,6 +890,10 @@ class core_renderer extends renderer_base {
                 $performanceinfo = $perf['html'];
             }
         }
+
+        //Admin site performance
+        tool_siteperf::shutdown();
+
         $footer = str_replace($this->unique_performance_info_token, $performanceinfo, $footer);
 
         $footer = str_replace($this->unique_end_html_token, $this->page->requires->get_end_code(), $footer);
