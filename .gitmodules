@@ -1,0 +1,111 @@
+[submodule "mod/choosegroup"]
+	path = mod/choosegroup
+	url = https://github.com/IOC/moodle-mod_choosegroup.git
+[submodule "local/secretaria"]
+	path = local/secretaria
+	url = https://github.com/IOC/moodle-local_secretaria.git
+[submodule "mod/questionnaire"]
+	path = mod/questionnaire
+	url = https://github.com/IOC/moodle-mod_questionnaire.git
+[submodule "filter/voicerecording"]
+	path = filter/voicerecording
+	url = https://github.com/IOC/moodle-filter_voicerecording.git
+[submodule "repository/voicerecording"]
+	path = repository/voicerecording
+	url = https://github.com/IOC/moodle-repository_voicerecording.git
+[submodule "filter/tv3alacarta"]
+	path = filter/tv3alacarta
+	url = https://github.com/IOC/moodle-filter_tv3alacarta.git
+[submodule "local/errorlog"]
+	path = local/errorlog
+	url = https://github.com/IOC/moodle-local_errorlog.git
+[submodule "blocks/mycourses"]
+	path = blocks/mycourses
+	url = https://github.com/IOC/moodle-block_mycourses.git
+[submodule "blocks/myremotecourses"]
+	path = blocks/myremotecourses
+	url = https://github.com/IOC/moodle-block-myremotecourses.git
+[submodule "admin/tool/siteperf"]
+	path = admin/tool/siteperf
+	url = https://github.com/IOC/moodle-admin_siteperf.git
+[submodule "local/mail"]
+	path = local/mail
+	url = https://github.com/IOC/moodle-local_mail.git
+[submodule "mod/hotpot"]
+	path = mod/hotpot
+	url = https://github.com/gbateson/moodle-mod_hotpot.git
+[submodule "mod/jclic"]
+	path = mod/jclic
+	url = https://github.com/projectestac/moodle-mod_jclic.git
+[submodule "local/batch"]
+	path = local/batch
+	url = https://github.com/IOC/moodle-local_batch.git
+[submodule "blocks/mymail"]
+	path = blocks/mymail
+	url = https://github.com/IOC/moodle-block_mymail.git
+[submodule "theme/ioc"]
+	path = theme/ioc
+	url = https://github.com/IOC/moodle-theme_ioc.git
+[submodule "theme/ioc_clean"]
+	path = theme/ioc_clean
+	url = https://github.com/IOC/moodle-theme_ioc_clean.git
+[submodule "lib/editor/tinymce/plugins/proofreadertools"]
+	path = lib/editor/tinymce/plugins/proofreadertools
+	url = https://github.com/IOC/moodle-tinymce_proofreadertools.git
+[submodule "local/materials"]
+	path = local/materials
+	url = https://github.com/IOC/moodle-local_materials.git
+[submodule "course/format/grid"]
+	path = course/format/grid
+	url = https://github.com/IOC/moodle-courseformat_grid.git
+[submodule "course/format/fpd"]
+	path = course/format/fpd
+	url = https://github.com/IOC/moodle-courseformat_fpd.git
+[submodule "mod/fpdquadern"]
+	path = mod/fpdquadern
+	url = https://github.com/IOC/moodle-mod_fpdquadern.git
+[submodule "mod/oublog"]
+	path = mod/oublog
+	url = https://github.com/IOC/moodle-mod_oublog.git
+[submodule "repository/materials"]
+	path = repository/materials
+	url = https://github.com/IOC/moodle-repository_materials.git
+[submodule "filter/wiris"]
+	path = filter/wiris
+	url = https://github.com/IOC/moodle-filter_wiris.git
+[submodule "lib/editor/tinymce/plugins/tiny_mce_wiris"]
+	path = lib/editor/tinymce/plugins/tiny_mce_wiris
+	url = https://github.com/IOC/moodle-tinymce_wiris.git
+[submodule "question/type/regexp"]
+	path = question/type/regexp
+	url = https://github.com/rezeau/moodle-qtype_regexp.git
+[submodule "question/behaviour/regexpadaptivewithhelp"]
+	path = question/behaviour/regexpadaptivewithhelp
+	url = https://github.com/rezeau/moodle-qbehaviour_regexpadaptivewithhelp.git
+[submodule "question/behaviour/regexpadaptivewithhelpnopenalty"]
+	path = question/behaviour/regexpadaptivewithhelpnopenalty
+	url = https://github.com/rezeau/moodle-qbehaviour_regexpadaptivewithhelpnopenalty.git
+[submodule "mod/workshop/allocation/live"]
+	path = mod/workshop/allocation/live
+	url = https://github.com/IOC/moodle-workshop_live.git
+[submodule "mod/workshop/eval/weightiest"]
+	path = mod/workshop/eval/weightiest
+	url = https://github.com/IOC/moodle-workshop_weightiest.git
+[submodule "mod/fct"]
+	path = mod/fct
+	url = https://github.com/IOC/moodle-mod_fct.git
+[submodule "portfolio/wordpress"]
+	path = portfolio/wordpress
+	url = https://github.com/IOC/moodle-portfolio_wordpress.git
+[submodule "lib/editor/atto"]
+	path = lib/editor/atto
+	url = https://github.com/damyon/moodle-editor_atto.git
+[submodule "report/editdates"]
+	path = report/editdates
+        url = https://github.com/IOC/moodle-report_editdates.git
+[submodule "local/mobile"]
+	path = local/mobile
+	url = https://github.com/jleyva/moodle-local_mobile.git
+[submodule "blocks/progress"]
+	path = blocks/progress
+	url = https://github.com/deraadt/Moodle-block_progress.git
