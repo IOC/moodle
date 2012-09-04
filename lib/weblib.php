@@ -2635,6 +2635,9 @@ function redirect($url, $message='', $delay=-1) {
         }
     }
 
+    //Admin site performance
+    tool_siteperf::shutdown();
+
     // Sanitise url - we can not rely on moodle_url or our URL cleaning
     // because they do not support all valid external URLs.
     $url = preg_replace('/[\x00-\x1F\x7F]/', '', $url);
