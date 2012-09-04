@@ -1,0 +1,39 @@
+[submodule "mod/choosegroup"]
+	path = mod/choosegroup
+	url = git://github.com/IOC/moodle-choosegroup.git
+[submodule "local/secretaria"]
+	path = local/secretaria
+	url = http://git.ioc.cat/moodle2-secretaria.git
+[submodule "mod/questionnaire"]
+	path = mod/questionnaire
+	url = git://github.com/remotelearner/moodle-mod_questionnaire.git
+[submodule "filter/voicerecording"]
+	path = filter/voicerecording
+	url = git://github.com/IOC/moodle-filter-voicerecording.git
+[submodule "repository/voicerecording"]
+	path = repository/voicerecording
+	url = git://github.com/IOC/moodle-repository-voicerecording.git
+[submodule "filter/tv3alacarta"]
+	path = filter/tv3alacarta
+	url = git://github.com/IOC/moodle-filter-tv3alacarta.git
+[submodule "local/errorlog"]
+	path = local/errorlog
+	url = git://github.com/IOC/moodle-local-errorlog.git
+[submodule "blocks/mycourses"]
+	path = blocks/mycourses
+	url = git://github.com/IOC/moodle-block-mycourses.git
+[submodule "blocks/myremotecourses"]
+	path = blocks/myremotecourses
+	url = git://github.com/IOC/moodle-block-myremotecourses.git
+[submodule "admin/tool/siteperf"]
+	path = admin/tool/siteperf
+	url = git://github.com/IOC/moodle-admin-siteperf.git
+[submodule "local/mail"]
+	path = local/mail
+	url = http://git.ioc.cat/moodle2-local-mail.git
+[submodule "mod/hotpot"]
+	path = mod/hotpot
+	url = git://github.com/gbateson/moodle-mod_hotpot.git
+[submodule "mod/jclic"]
+	path = mod/jclic
+	url = git://github.com/projectestac/moodle-mod_jclic.git
