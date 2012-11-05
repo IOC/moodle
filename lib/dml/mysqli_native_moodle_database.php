@@ -1450,7 +1450,7 @@ class mysqli_native_moodle_database extends moodle_database {
             return;
         }
 
-        $sql = "SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED";
+        $sql = "SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ";
         $this->query_start($sql, NULL, SQL_QUERY_AUX);
         $result = $this->mysqli->query($sql);
         $this->query_end($result);
