@@ -2220,7 +2220,7 @@ class file_storage {
 
             mtrace('Deleting trash files... ', '');
             cron_trace_time_and_memory();
-            fulldelete($this->trashdir);
+            fulldeletebydate($this->trashdir, time() - 60*60*24*5);
             set_config('fileslastcleanup', time());
             mtrace('done.');
         }
