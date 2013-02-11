@@ -164,7 +164,7 @@ class block_quiz_results extends block_base {
         switch ($groupmode) {
             case VISIBLEGROUPS:
             // Display group-mode results
-            $groups = groups_get_all_groups($courseid);
+            $groups = groups_get_all_groups($courseid, 0, $cm->groupingid);
 
             if(empty($groups)) {
                 // No groups exist, sorry
@@ -183,11 +183,14 @@ class block_quiz_results extends block_base {
             // Now find which groups these users belong in
             list($usertest, $params) = $DB->get_in_or_equal($userids);
             $params[] = $courseid;
+            list($grouptest, $groupparams) = $DB->get_in_or_equal(array_keys($groups));
+            $params = array_merge($params, $groupparams);
             $usergroups = $DB->get_records_sql('
                     SELECT gm.id, gm.userid, gm.groupid, g.name
                     FROM {groups} g
                     LEFT JOIN {groups_members} gm ON g.id = gm.groupid
-                    WHERE gm.userid ' . $usertest . ' AND g.courseid = ?', $params);
+                    WHERE gm.userid ' . $usertest . ' AND g.courseid = ?
+                    AND g.id ' . $grouptest , $params);
 
             // Now, iterate the grades again and sum them up for each group
             $groupgrades = array();
@@ -330,7 +333,7 @@ class block_quiz_results extends block_base {
                 return $this->content;
             }
 
-            $mygroups = groups_get_all_groups($courseid, $USER->id);
+            $mygroups = groups_get_all_groups($courseid, $USER->id, $cm->groupingid);
             if(empty($mygroups)) {
                 // Not member of a group, show nothing
                 return $this->content;
