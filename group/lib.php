@@ -530,8 +530,9 @@ function groups_delete_group_members($courseid, $userid=0, $showfeedback=false) 
         $usersql = "";
     }
 
-    $groupssql = "SELECT id FROM {groups} g WHERE g.courseid = :courseid";
-    $DB->delete_records_select('groups_members', "groupid IN ($groupssql) $usersql", $params);
+    $DB->execute('DELETE gm.* FROM {groups_members} gm ' .
+                 'JOIN {groups} g ON g.id = gm.groupid ' .
+                 'WHERE g.courseid = :courseid ' . $usersql, $params);
 
     //trigger groups events
     $eventdata = new stdClass();
