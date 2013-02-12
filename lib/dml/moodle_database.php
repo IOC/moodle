@@ -2340,4 +2340,7 @@ abstract class moodle_database {
     public function perf_get_queries() {
         return $this->writes + $this->reads;
     }
+
+    public function raise_timeout() {
+    }
 }
