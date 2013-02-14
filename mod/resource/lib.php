@@ -178,6 +178,7 @@ function resource_user_outline($course, $user, $mod, $resource) {
     global $DB;
 
     if ($logs = $DB->get_records('log', array('userid'=>$user->id, 'module'=>'resource',
+                                              'course' => $course->id,
                                               'action'=>'view', 'info'=>$resource->id), 'time ASC')) {
 
         $numviews = count($logs);
