@@ -805,9 +805,8 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="userid-courseid" UNIQUE="true" FIELDS="userid, courseid" NEXT="userid"/>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" PREVIOUS="userid-courseid" NEXT="courseid"/>
-        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid" PREVIOUS="userid"/>
+        <INDEX NAME="userid-courseid" UNIQUE="true" FIELDS="userid, courseid" NEXT="courseid-timeaccess"/>
+        <INDEX NAME="courseid-timeaccess" UNIQUE="false" FIELDS="courseid, timeaccess" PREVIOUS="userid-courseid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="scale" COMMENT="Defines grading scales" PREVIOUS="user_lastaccess" NEXT="scale_history">
