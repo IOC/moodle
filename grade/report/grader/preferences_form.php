@@ -99,7 +99,8 @@ class grader_report_preferences_form extends moodleform {
 
         // View capability is the lowest permission. Users with grade:manage or grade:edit must also have grader:view
         if (has_capability('gradereport/grader:view', $context)) {
-            $preferences['prefgeneral']['studentsperpage'] = 'text';
+            $options = array(10=>'10', 20=>'20', 50=>'50', 100=>'100');
+            $preferences['prefgeneral']['studentsperpage'] = $options;
             $preferences['prefgeneral']['aggregationposition'] = array(GRADE_REPORT_PREFERENCE_DEFAULT => '*default*',
                                                                        GRADE_REPORT_AGGREGATION_POSITION_FIRST => get_string('positionfirst', 'grades'),
                                                                        GRADE_REPORT_AGGREGATION_POSITION_LAST => get_string('positionlast', 'grades'));
