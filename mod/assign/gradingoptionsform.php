@@ -46,7 +46,7 @@ class mod_assign_grading_options_form extends moodleform {
 
         $mform->addElement('header', 'general', get_string('gradingoptions', 'assign'));
         // Visible elements.
-        $options = array(-1=>get_string('all'), 10=>'10', 20=>'20', 50=>'50', 100=>'100');
+        $options = array(10=>'10', 20=>'20', 50=>'50', 100=>'100');
         $mform->addElement('select', 'perpage', get_string('assignmentsperpage', 'assign'), $options, $dirtyclass);
         $options = array('' => get_string('filternone', 'assign'),
                          ASSIGN_FILTER_SUBMITTED => get_string('filtersubmitted', 'assign'),
