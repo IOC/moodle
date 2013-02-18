@@ -97,6 +97,10 @@ class mod_forum_mod_form extends moodleform_mod {
         $options[FORUM_DISALLOWSUBSCRIBE] = get_string('subscriptiondisabled','forum');
         $mform->addElement('select', 'forcesubscribe', get_string('subscriptionmode', 'forum'), $options);
         $mform->addHelpButton('forcesubscribe', 'subscriptionmode', 'forum');
+        $mform->setDefault('forcesubscribe', FORUM_DISALLOWSUBSCRIBE);
+        if (!has_capability('mod/forum:managesubscriptions', context_course::instance($COURSE->id))) {
+            $mform->freeze(array('forcesubscribe'));
+        }
 
         $options = array();
         $options[FORUM_TRACKING_OPTIONAL] = get_string('trackingoptional', 'forum');
