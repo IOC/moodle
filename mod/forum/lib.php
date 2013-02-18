@@ -76,6 +76,10 @@ function forum_add_instance($forum, $mform = null) {
         $forum->assesstimefinish = 0;
     }
 
+    if (!isset($forum->forcesubscribe)) {
+        $forum->forcesubscribe = FORUM_DISALLOWSUBSCRIBE;
+    }
+
     $forum->id = $DB->insert_record('forum', $forum);
     $modcontext = get_context_instance(CONTEXT_MODULE, $forum->coursemodule);
 
