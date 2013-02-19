@@ -1077,9 +1077,8 @@ class assign {
                    JOIN(' . $esql . ') e ON e.id = s.userid
                    WHERE
                         s.assignment = :assignid AND
-                        s.timemodified IS NOT NULL AND
                         s.status = :submitted AND
-                        (s.timemodified > g.timemodified OR g.timemodified IS NULL)';
+                        (s.timemodified > g.timemodified OR g.grade IS NULL)';
 
         return $DB->count_records_sql($sql, $params);
     }
@@ -1107,7 +1106,6 @@ class assign {
                    JOIN(' . $esql . ') e ON e.id = s.userid
                    WHERE
                         s.assignment = :assignid AND
-                        s.timemodified IS NOT NULL AND
                         s.status = :submissionstatus';
 
         return $DB->count_records_sql($sql, $params);
@@ -1174,9 +1172,7 @@ class assign {
                    FROM {assign_submission} s
                    JOIN {user} u ON s.userid = u.id
                    JOIN(' . $esql . ') e ON e.id = s.userid
-                   WHERE
-                        s.assignment = :assignid AND
-                        s.timemodified IS NOT NULL';
+                   WHERE s.assignment = :assignid';
 
         if ($sort == "lastname" or $sort == "firstname") {
             $sort = "u.$sort $dir";
@@ -1359,6 +1355,9 @@ class assign {
         if ($grade->mailed != 1) {
             $grade->mailed = 0;
         }
+        if ($grade->grade === null) {
+            $grade->mailed = 1;
+        }
 
         return $DB->update_record('assign_grades', $grade);
     }
@@ -1392,6 +1391,10 @@ class assign {
                     }
                 }
             }
+        }
+
+        if ($grade->grade == -1) {
+            $grade->grade = null;
         }
 
         $result = $DB->update_record('assign_grades', $grade);
@@ -3076,7 +3079,10 @@ class assign {
                     $gradingelement->freeze();
                 }
             } else {
-                $grademenu = make_grades_menu($this->get_instance()->grade);
+                $grademenu = array(-1 => get_string('nograde'));
+                foreach (make_grades_menu($this->get_instance()->grade) as $k => $v) {
+                    $grademenu[$k] = $v;
+                }
                 if (count($grademenu) > 0) {
                     $gradingelement = $mform->addElement('select', 'grade', get_string('grade').':', $grademenu);
 
