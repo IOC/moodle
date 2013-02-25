@@ -64,8 +64,13 @@ class moodle1_mod_assignment_handler extends moodle1_mod_handler {
                 array(
                     'renamefields' => array(
                         'description' => 'intro',
-                        'format' => 'introformat',
-                    )
+                    ),
+                    'dropfields' => array(
+                        'format',
+                    ),
+                    'newfields' => array(
+                        'introformat' => FORMAT_HTML,
+                    ),
                 )
             )
             //@todo process user data
