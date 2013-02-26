@@ -1909,6 +1909,18 @@ class assign {
             $o .= plagiarism_update_status($this->get_course(), $this->get_course_module());
         }
 
+        $rownum = optional_param('rownum', false, PARAM_INT);
+        $useridlist = optional_param('useridlist', '', PARAM_TEXT);
+        if ($useridlist and $rownum !== false) {
+            $useridlist = explode(',', $useridlist);
+            $userid = $useridlist[$rownum];
+            $useridlist = $this->get_grading_userid_list();
+            $rownum = array_search($userid, $useridlist);
+            if ($rownum !== false) {
+                $_POST['page'] = floor($rownum / $perpage);
+            }
+        }
+
         // load and print the table of submissions
         if ($showquickgrading && $quickgrading) {
             $table = $this->output->render(new assign_grading_table($this, $perpage, $filter, 0, true));
