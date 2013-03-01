@@ -91,9 +91,7 @@ class restore_qtype_match_plugin extends restore_qtype_plugin {
 
             // Adjust some columns
             $data->question = $newquestionid;
-            // Keep question_match->subquestions unmodified
-            // after_execute_question() will perform the remapping once all subquestions
-            // have been created
+            $data->subquestions = ''; // not used
             // Insert record
             $newitemid = $DB->insert_record('question_match', $data);
             // Create mapping
