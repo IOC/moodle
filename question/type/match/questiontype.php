@@ -111,7 +111,7 @@ class qtype_match extends question_type {
             $options->id = $DB->insert_record('question_match', $options);
         }
 
-        $options->subquestions = implode(',', $subquestions);
+        $options->subquestions = ''; // not used
         $options->shuffleanswers = $question->shuffleanswers;
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('question_match', $options);
