@@ -62,7 +62,7 @@ class moodle1_qtype_match_handler extends moodle1_qtype_handler {
             $matchoptions = array('shuffleanswers' => 1);
         }
         $matchoptions['id'] = $this->converter->get_nextid();
-        $matchoptions['subquestions'] = implode(',', $matchids);
+        $matchoptions['subquestions'] = ''; // not used
         $this->write_xml('matchoptions', $matchoptions, array('/matchoptions/id'));
 
         // convert matches
