@@ -50,7 +50,8 @@ class mod_assign_grading_options_form extends moodleform {
         $mform->addElement('select', 'perpage', get_string('assignmentsperpage', 'assign'), $options, $dirtyclass);
         $options = array('' => get_string('filternone', 'assign'),
                          ASSIGN_FILTER_SUBMITTED => get_string('filtersubmitted', 'assign'),
-                         ASSIGN_FILTER_REQUIRE_GRADING => get_string('filterrequiregrading', 'assign'));
+                         ASSIGN_FILTER_REQUIRE_GRADING => get_string('filterrequiregrading', 'assign'),
+                         ASSIGN_FILTER_DRAFTS => get_string('numberofdraftsubmissions', 'assign'));
         if ($instance['submissionsenabled']) {
             $mform->addElement('select', 'filter', get_string('filter', 'assign'), $options, $dirtyclass);
         }
