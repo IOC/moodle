@@ -38,6 +38,7 @@ define('ASSIGN_SUBMISSION_STATUS_SUBMITTED', 'submitted'); // student thinks it 
 define('ASSIGN_FILTER_SUBMITTED', 'submitted');
 define('ASSIGN_FILTER_SINGLE_USER', 'singleuser');
 define('ASSIGN_FILTER_REQUIRE_GRADING', 'require_grading');
+define('ASSIGN_FILTER_DRAFTS', 'drafts');
 
 /** Include accesslib.php */
 require_once($CFG->libdir.'/accesslib.php');
