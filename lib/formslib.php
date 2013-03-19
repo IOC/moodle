@@ -2137,6 +2137,7 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
 //<![CDATA[
 
 var skipClientValidation = false;
+var containsErrors = false;
 
 function qf_errorHandler(element, _qfMsg, escapedName) {
   div = element.parentNode;
@@ -2171,7 +2172,7 @@ function qf_errorHandler(element, _qfMsg, escapedName) {
         linebreak.id = \'id_error_break_\' + escapedName;
         errorSpan.parentNode.insertBefore(linebreak, errorSpan.nextSibling);
     }
-
+    containsErrors = true;
     return false;
   } else {
     var errorSpan = document.getElementById(\'id_error_\' + escapedName);
@@ -2188,7 +2189,7 @@ function qf_errorHandler(element, _qfMsg, escapedName) {
     } else if (div.className == "error") {
       div.className = "";
     }
-
+    containsErrors = false;
     return true;
   }
 }';
