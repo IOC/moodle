@@ -1646,6 +1646,9 @@ class assign {
         if ($flags->mailed != 1) {
             $flags->mailed = 0;
         }
+        if ($grade->grade === null) {
+            $flags->mailed = 1;
+        }
 
         return $this->update_user_flags($flags);
     }
