@@ -1655,6 +1655,9 @@ class assign {
         if ($flags->mailed != 1) {
             $flags->mailed = 0;
         }
+        if ($grade->grade === null) {
+            $flags->mailed = 1;
+        }
 
         return $this->update_user_flags($flags);
     }
@@ -5031,8 +5034,9 @@ class assign {
                     $mform->addHelpButton('gradedisabled', 'gradeoutofhelp', 'assign');
                 }
             } else {
-                $grademenu = make_grades_menu($this->get_instance()->grade);
-                if (count($grademenu) > 0) {
+                $grademenu = array(-1 => get_string('nograde'));
+                $grademenu += make_grades_menu($this->get_instance()->grade);
+                if (count($grademenu) > 1) {
                     $gradingelement = $mform->addElement('select', 'grade', get_string('grade') . ':', $grademenu);
 
                     // The grade is already formatted with format_float so it needs to be converted back to an integer.
@@ -5443,6 +5447,9 @@ class assign {
                 // Handle the case when grade is set to No Grade.
                 if (isset($formdata->grade)) {
                     $grade->grade = grade_floatval(unformat_float($formdata->grade));
+                    if ($formdata->grade == -1) {
+                        $grade->grade = null;
+                    }
                 }
             }
         }
