@@ -6801,7 +6801,7 @@ class core_string_manager implements string_manager {
             $originalkeys = array_flip($originalkeys);
 
             // and then corresponding local if present and allowed
-            if (!$disablelocal and file_exists("$this->localroot/en_local/$file.php")) {
+            if (!$disablelocal and $this->localroot and file_exists("$this->localroot/en_local/$file.php")) {
                 include("$this->localroot/en_local/$file.php");
             }
             // now loop through all langs in correct order
@@ -6811,7 +6811,7 @@ class core_string_manager implements string_manager {
                 if (file_exists("$this->otherroot/$dep/$file.php")) {
                     include("$this->otherroot/$dep/$file.php");
                 }
-                if (!$disablelocal and file_exists("$this->localroot/{$dep}_local/$file.php")) {
+                if (!$disablelocal and $this->localroot and file_exists("$this->localroot/{$dep}_local/$file.php")) {
                     include("$this->localroot/{$dep}_local/$file.php");
                 }
             }
@@ -6836,7 +6836,7 @@ class core_string_manager implements string_manager {
             $originalkeys = array_keys($string);
             $originalkeys = array_flip($originalkeys);
             // and then corresponding local english if present
-            if (!$disablelocal and file_exists("$this->localroot/en_local/$file.php")) {
+            if (!$disablelocal and $this->localroot and file_exists("$this->localroot/en_local/$file.php")) {
                 include("$this->localroot/en_local/$file.php");
             }
 
@@ -6852,7 +6852,7 @@ class core_string_manager implements string_manager {
                     include("$this->otherroot/$dep/$file.php");
                 }
                 // local customisations
-                if (!$disablelocal and file_exists("$this->localroot/{$dep}_local/$file.php")) {
+                if (!$disablelocal and $this->localroot and file_exists("$this->localroot/{$dep}_local/$file.php")) {
                     include("$this->localroot/{$dep}_local/$file.php");
                 }
             }
