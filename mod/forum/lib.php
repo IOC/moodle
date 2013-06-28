@@ -758,8 +758,6 @@ function forum_cron() {
                 mtrace('post '.$post->id. ': '.$post->subject);
             }
 
-            // mark processed posts as read
-            forum_tp_mark_posts_read($userto, $userto->markposts);
             unset($userto);
         }
     }
@@ -1041,9 +1039,6 @@ function forum_cron() {
                 } else {
                     mtrace("success.");
                     $usermailcount++;
-
-                    // Mark post as read if forum_usermarksread is set off
-                    forum_tp_mark_posts_read($userto, $userto->markposts);
                 }
             }
         }
