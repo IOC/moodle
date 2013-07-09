@@ -155,7 +155,7 @@ class cachestore_static extends static_data_store implements cache_is_key_aware,
      * @return int
      */
     public static function get_supported_modes(array $configuration = array()) {
-        return self::MODE_REQUEST;
+        return self::MODE_REQUEST + self::MODE_APPLICATION;
     }
 
     /**
@@ -174,7 +174,7 @@ class cachestore_static extends static_data_store implements cache_is_key_aware,
      * @return bool
      */
     public static function is_supported_mode($mode) {
-        return ($mode === self::MODE_REQUEST);
+        return ($mode === self::MODE_REQUEST || $mode === self::MODE_APPLICATION);
     }
 
     /**
