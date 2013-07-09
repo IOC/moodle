@@ -1460,13 +1460,16 @@ function make_temp_directory($directory, $exceptiononerror = true) {
  * @param bool $exceptiononerror throw exception if error encountered
  * @return string|false Returns full path to directory if successful, false if not; may throw exception
  */
-function make_cache_directory($directory, $exceptiononerror = true) {
+function make_cache_directory($directory, $exceptiononerror = true, $local = false) {
     global $CFG;
     if ($CFG->cachedir !== "$CFG->dataroot/cache") {
         check_dir_exists($CFG->cachedir, true, true);
         protect_directory($CFG->cachedir);
     } else {
         protect_directory($CFG->dataroot);
+    }
+    if ($local and !empty($CFG->local_cachedir) and is_dir($CFG->local_cachedir)) {
+        return make_writable_directory("$CFG->local_cachedir/$directory", $exceptiononerror);
     }
     return make_writable_directory("$CFG->cachedir/$directory", $exceptiononerror);
 }
