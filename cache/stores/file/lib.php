@@ -152,7 +152,7 @@ class cachestore_file extends cache_store implements cache_is_key_aware, cache_i
                 debugging('The file cache store path is not writable for `'.$name.'`', DEBUG_DEVELOPER);
             }
         } else {
-            $path = make_cache_directory('cachestore_file/'.preg_replace('#[^a-zA-Z0-9\.\-_]+#', '', $name));
+            $path = make_cache_directory('cachestore_file/'.preg_replace('#[^a-zA-Z0-9\.\-_]+#', '', $name), true, true);
         }
         $this->isready = $path !== false;
         $this->filestorepath = $path;
