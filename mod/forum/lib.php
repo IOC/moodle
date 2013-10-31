@@ -1469,7 +1469,11 @@ function forum_print_overview($courses,&$htmlarray) {
         $showunread = false;
         // either we have something from logs, or trackposts, or nothing.
         if (array_key_exists($forum->id, $new) && !empty($new[$forum->id])) {
-            $count = $new[$forum->id]->count;
+            $cm = get_coursemodule_from_instance('forum', $forum->id);
+            $groupmode = groups_get_activity_groupmode($cm);
+            if ($groupmode != SEPARATEGROUPS) {
+                $count = $new[$forum->id]->count;
+            }
         }
         if (array_key_exists($forum->id,$unread)) {
             $thisunread = $unread[$forum->id]->count;
