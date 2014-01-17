@@ -414,7 +414,7 @@ function assign_print_overview($courses, &$htmlarray) {
                                                   s.assignment = g.assignment
                                               WHERE
                                                   ( g.timemodified is NULL OR
-                                                  s.timemodified > g.timemodified ) AND
+                                                   ( s.timemodified > g.timemodified AND s.attemptnumber = g.attemptnumber )) AND
                                                   s.timemodified IS NOT NULL AND
                                                   s.status = ? AND
                                                   s.assignment ' . $sqlassignmentids, $dbparams);
@@ -462,7 +462,8 @@ function assign_print_overview($courses, &$htmlarray) {
                                                            g.userid = ?
                                                        LEFT JOIN {assign_submission} s ON
                                                            s.assignment = a.id AND
-                                                           s.userid = ?
+                                                           s.userid = ? AND
+                                                           s.attemptnumber = g.attemptnumber
                                                        WHERE a.id ' . $sqlassignmentids, $dbparams);
             }
 
