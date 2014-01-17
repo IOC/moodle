@@ -414,7 +414,7 @@ function assign_print_overview($courses, &$htmlarray) {
                                                   g.attemptnumber = smx.maxattempt
                                               WHERE
                                                   ( g.timemodified is NULL OR
-                                                  s.timemodified > g.timemodified ) AND
+                                                   ( s.timemodified > g.timemodified AND s.attemptnumber = g.attemptnumber )) AND
                                                   s.timemodified IS NOT NULL AND
                                                   s.status = ? AND
                                                   s.attemptnumber = smx.maxattempt AND
