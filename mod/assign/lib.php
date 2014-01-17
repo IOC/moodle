@@ -407,17 +407,17 @@ function assign_print_overview($courses, &$htmlarray) {
                                               FROM {assign_submission} s
                                               LEFT JOIN ( ' . $submissionmaxattempt . ' ) smx ON
                                                            smx.userid = s.userid AND
-                                                           smx.assignment = s.id
+                                                           smx.assignment = s.id AND
+                                                           smx.maxattempt = s.attemptnumber
                                               LEFT JOIN {assign_grades} g ON
                                                   s.userid = g.userid AND
                                                   s.assignment = g.assignment AND
-                                                  g.attemptnumber = smx.maxattempt
+                                                  g.attemptnumber = s.attemptnumber
                                               WHERE
                                                   ( g.timemodified is NULL OR
                                                   s.timemodified > g.timemodified ) AND
                                                   s.timemodified IS NOT NULL AND
                                                   s.status = ? AND
-                                                  s.attemptnumber = smx.maxattempt AND
                                                   s.assignment ' . $sqlassignmentids, $dbparams);
 
                 $unmarkedsubmissions = array();
