@@ -901,9 +901,16 @@ ORDER BY
      * @param number $newmaxmark the new max mark to set.
      */
     public function set_max_mark_in_attempts(qubaid_condition $qubaids, $slot, $newmaxmark) {
+        $params = $qubaids->usage_id_in_params();
+        $records = $this->db->get_fieldset_select('quiz_attempts', 'uniqueid', "quiz = :quizaquiz", $params);
+        if ($records) {
+            $in = " IN (".implode(',', $records).")";
+        } else {
+            $in = " = 0";
+        }
         $this->db->set_field_select('question_attempts', 'maxmark', $newmaxmark,
-                "questionusageid {$qubaids->usage_id_in()} AND slot = :slot",
-                $qubaids->usage_id_in_params() + array('slot' => $slot));
+                "questionusageid $in AND slot = :slot",
+                array('slot' => $slot));
     }
 
     /**
