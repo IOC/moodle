@@ -77,7 +77,7 @@ function report_log_print_graph($course, $userid, $type, $date=0) {
 function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, $selecteddate='today',
                                  $modname="", $modid=0, $modaction='', $selectedgroup=-1, $showcourses=0, $showusers=0, $logformat='showashtml') {
 
-    global $USER, $CFG, $SITE, $DB, $OUTPUT, $SESSION;
+    global $USER, $CFG, $SITE, $DB, $OUTPUT, $SESSION, $PAGE;
     require_once $CFG->dirroot.'/mnet/peer.php';
 
     $mnet_peer = new mnet_peer();
@@ -102,6 +102,7 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
 
         /// Setup for group handling.
         if ($course->groupmode == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $context)) {
+            $origselectedgroup = $selectedgroup;
             $selectedgroup = -1;
             $showgroups = false;
         } else if ($course->groupmode) {
@@ -111,8 +112,25 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
             $showgroups = false;
         }
 
+        $separategroups = false;
+
         if ($selectedgroup === -1) {
-            if (isset($SESSION->currentgroup[$course->id])) {
+            if (has_capability('gradereport/grader:view', $context)) {
+                $showgroups = true;
+                $separategroups = true;
+                if ($origselectedgroup != -1) {
+                    $selectedgroup = $origselectedgroup;
+                    $SESSION->currentgroup[$course->id] = $selectedgroup;
+                } else {
+                    $selectedgroup = groups_get_user_groups($course->id, $USER->id);
+                    if (is_array($selectedgroup)) {
+                        $selectedgroup = array_shift($selectedgroup[0]);
+                        $SESSION->currentgroup[$course->id] = $selectedgroup;
+                    } else {
+                        $selectedgroup = 0;
+                    }
+                }
+            } else if (isset($SESSION->currentgroup[$course->id])) {
                 $selectedgroup =  $SESSION->currentgroup[$course->id];
             } else {
                 $selectedgroup = groups_get_all_groups($course->id, $USER->id);
@@ -307,7 +325,7 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
     if ($selecteddate === "today") {
         $selecteddate = $today;
     }
-
+    $PAGE->requires->js('/report/log/autosubmit.js');
     echo "<form class=\"logselectform\" action=\"$CFG->wwwroot/report/log/index.php\" method=\"get\">\n";
     echo "<div>\n";//invisible fieldset here breaks wrapping
     echo "<input type=\"hidden\" name=\"chooselog\" value=\"1\" />\n";
@@ -316,7 +334,7 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
     if (has_capability('report/log:view', $sitecontext) && $showcourses) {
         $cid = empty($course->id)? '1' : $course->id;
         echo html_writer::label(get_string('selectacoursesite'), 'menuhost_course', false, array('class' => 'accesshide'));
-        echo html_writer::select($dropdown, "host_course", $hostid.'/'.$cid);
+        echo html_writer::select($dropdown, "host_course", $hostid.'/'.$cid, false);
     } else {
         $courses = array();
         $courses[$course->id] = get_course_display_name_for_list($course) . ((empty($course->category)) ? ' ('.get_string('site').') ' : '');
@@ -331,7 +349,18 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
     }
 
     if ($showgroups) {
-        if ($cgroups = groups_get_all_groups($course->id)) {
+        if ($separategroups) {
+            if (!$selectedgroup) {
+                print_error('invalidgroupid', 'error');
+            }
+            $groups = array();
+            $cgroups = groups_get_user_groups($course->id);
+            if (!empty($cgroups[0])) {
+                foreach ($cgroups[0] as $cgroup) {
+                    $groups[$cgroup] = groups_get_group_name($cgroup);
+                }
+            }
+        } else if ($cgroups = groups_get_all_groups($course->id)) {
             foreach ($cgroups as $cgroup) {
                 $groups[$cgroup->id] = $cgroup->name;
             }
@@ -339,8 +368,15 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
         else {
             $groups = array();
         }
-        echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
-        echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        if ($separategroups) {
+            if ($selectedgroup and !empty($groups)) {
+                echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+                echo html_writer::select($groups, "group", $selectedgroup, false);
+            }
+        } else {
+            echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+            echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        }
     }
 
     if ($showusers) {
@@ -408,7 +444,7 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
 function report_log_print_selector_form($course, $selecteduser=0, $selecteddate='today',
                                  $modname="", $modid=0, $modaction='', $selectedgroup=-1, $showcourses=0, $showusers=0, $logformat='showashtml') {
 
-    global $USER, $CFG, $DB, $OUTPUT, $SESSION;
+    global $USER, $CFG, $DB, $OUTPUT, $SESSION, $PAGE;
 
     // first check to see if we can override showcourses and showusers
     $numcourses =  $DB->count_records("course");
@@ -430,8 +466,20 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
         $showgroups = false;
     }
 
+    $separategroups = false;
+
     if ($selectedgroup === -1) {
-        if (isset($SESSION->currentgroup[$course->id])) {
+        if (has_capability('gradereport/grader:view', $context)) {
+            $showgroups = true;
+            $separategroups = true;
+            $selectedgroup = groups_get_user_groups($course->id, $USER->id);
+            if (is_array($selectedgroup)) {
+                $selectedgroup = array_shift($selectedgroup[0]);
+                $SESSION->currentgroup[$course->id] = $selectedgroup;
+            } else {
+                $selectedgroup = 0;
+            }
+        } else if (isset($SESSION->currentgroup[$course->id])) {
             $selectedgroup =  $SESSION->currentgroup[$course->id];
         } else {
             $selectedgroup = groups_get_all_groups($course->id, $USER->id);
@@ -568,6 +616,7 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
         $selecteddate = $today;
     }
 
+    $PAGE->requires->js('/report/log/autosubmit.js');
     echo "<form class=\"logselectform\" action=\"$CFG->wwwroot/report/log/index.php\" method=\"get\">\n";
     echo "<div>\n";
     echo "<input type=\"hidden\" name=\"chooselog\" value=\"1\" />\n";
@@ -591,7 +640,15 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
     }
 
     if ($showgroups) {
-        if ($cgroups = groups_get_all_groups($course->id)) {
+        if ($separategroups) {
+            $groups = array();
+            $cgroups = groups_get_user_groups($course->id);
+            if (!empty($cgroups[0])) {
+                foreach ($cgroups[0] as $cgroup) {
+                    $groups[$cgroup] = groups_get_group_name($cgroup);
+                }
+            }
+        } else if ($cgroups = groups_get_all_groups($course->id)) {
             foreach ($cgroups as $cgroup) {
                 $groups[$cgroup->id] = $cgroup->name;
             }
@@ -599,8 +656,15 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
         else {
             $groups = array();
         }
-        echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
-        echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        if ($separategroups) {
+            if ($selectedgroup and !empty($groups)) {
+                echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+                echo html_writer::select($groups, "group", $selectedgroup, false);
+            }
+        } else {
+            echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+            echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        }
     }
 
     if ($showusers) {
