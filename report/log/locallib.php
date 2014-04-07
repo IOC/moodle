@@ -102,6 +102,7 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
 
         /// Setup for group handling.
         if ($course->groupmode == SEPARATEGROUPS and !has_capability('moodle/site:accessallgroups', $context)) {
+            $origselectedgroup = $selectedgroup;
             $selectedgroup = -1;
             $showgroups = false;
         } else if ($course->groupmode) {
@@ -111,8 +112,25 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
             $showgroups = false;
         }
 
+        $separategroups = false;
+
         if ($selectedgroup === -1) {
-            if (isset($SESSION->currentgroup[$course->id])) {
+            if (has_capability('gradereport/grader:view', $context)) {
+                $showgroups = true;
+                $separategroups = true;
+                if ($origselectedgroup != -1) {
+                    $selectedgroup = $origselectedgroup;
+                    $SESSION->currentgroup[$course->id] = $selectedgroup;
+                } else {
+                    $selectedgroup = groups_get_user_groups($course->id, $USER->id);
+                    if (is_array($selectedgroup)) {
+                        $selectedgroup = array_shift($selectedgroup[0]);
+                        $SESSION->currentgroup[$course->id] = $selectedgroup;
+                    } else {
+                        $selectedgroup = 0;
+                    }
+                }
+            } else if (isset($SESSION->currentgroup[$course->id])) {
                 $selectedgroup =  $SESSION->currentgroup[$course->id];
             } else {
                 $selectedgroup = groups_get_all_groups($course->id, $USER->id);
@@ -329,7 +347,18 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
     }
 
     if ($showgroups) {
-        if ($cgroups = groups_get_all_groups($course->id)) {
+        if ($separategroups) {
+            if (!$selectedgroup) {
+                print_error('invalidgroupid', 'error');
+            }
+            $groups = array();
+            $cgroups = groups_get_user_groups($course->id);
+            if (!empty($cgroups[0])) {
+                foreach ($cgroups[0] as $cgroup) {
+                    $groups[$cgroup] = groups_get_group_name($cgroup);
+                }
+            }
+        } else if ($cgroups = groups_get_all_groups($course->id)) {
             foreach ($cgroups as $cgroup) {
                 $groups[$cgroup->id] = $cgroup->name;
             }
@@ -337,8 +366,15 @@ function report_log_print_mnet_selector_form($hostid, $course, $selecteduser=0, 
         else {
             $groups = array();
         }
-        echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
-        echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        if ($separategroups) {
+            if ($selectedgroup and !empty($groups)) {
+                echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+                echo html_writer::select($groups, "group", $selectedgroup, null);
+            }
+        } else {
+            echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+            echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        }
     }
 
     if ($showusers) {
@@ -428,8 +464,20 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
         $showgroups = false;
     }
 
+    $separategroups = false;
+
     if ($selectedgroup === -1) {
-        if (isset($SESSION->currentgroup[$course->id])) {
+        if (has_capability('gradereport/grader:view', $context)) {
+            $showgroups = true;
+            $separategroups = true;
+            $selectedgroup = groups_get_user_groups($course->id, $USER->id);
+            if (is_array($selectedgroup)) {
+                $selectedgroup = array_shift($selectedgroup[0]);
+                $SESSION->currentgroup[$course->id] = $selectedgroup;
+            } else {
+                $selectedgroup = 0;
+            }
+        } else if (isset($SESSION->currentgroup[$course->id])) {
             $selectedgroup =  $SESSION->currentgroup[$course->id];
         } else {
             $selectedgroup = groups_get_all_groups($course->id, $USER->id);
@@ -588,7 +636,15 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
     }
 
     if ($showgroups) {
-        if ($cgroups = groups_get_all_groups($course->id)) {
+        if ($separategroups) {
+            $groups = array();
+            $cgroups = groups_get_user_groups($course->id);
+            if (!empty($cgroups[0])) {
+                foreach ($cgroups[0] as $cgroup) {
+                    $groups[$cgroup] = groups_get_group_name($cgroup);
+                }
+            }
+        } else if ($cgroups = groups_get_all_groups($course->id)) {
             foreach ($cgroups as $cgroup) {
                 $groups[$cgroup->id] = $cgroup->name;
             }
@@ -596,8 +652,15 @@ function report_log_print_selector_form($course, $selecteduser=0, $selecteddate=
         else {
             $groups = array();
         }
-        echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
-        echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        if ($separategroups) {
+            if ($selectedgroup and !empty($groups)) {
+                echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+                echo html_writer::select($groups, "group", $selectedgroup, null);
+            }
+        } else {
+            echo html_writer::label(get_string('selectagroup'), 'menugroup', false, array('class' => 'accesshide'));
+            echo html_writer::select($groups, "group", $selectedgroup, get_string("allgroups"));
+        }
     }
 
     if ($showusers) {
