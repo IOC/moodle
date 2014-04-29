@@ -280,6 +280,13 @@ if ($data = data_submitted() and confirm_sesskey()) {
 
             $recreatetree = true;
 
+            if ($grades = grade_grade::fetch_all(array('itemid' => $aid))) {
+                foreach ($grades as $grade) {
+                    $grade->rawgrademax = $grade_item->grademax;
+                    $grade->update('gradebook');
+                }
+            }
+
         // Grade item checkbox inputs
         } elseif (preg_match('/^extracredit_([0-9]+)$/', $key, $matches)) { // Sum extra credit checkbox
             $aid   = $matches[1];
