@@ -67,6 +67,12 @@ a:link.submissionstatussubmitted {
     background-color: #cfefcf;
 }
 
+td.submissionstatussubmitteddeleted,
+div.submissionstatussubmitteddeleted,
+a:link.submissionstatussubmitteddeleted {
+    color: black;
+    background-color: #ffb500;
+}
 
 td.submissionlocked,
 div.submissionlocked {
