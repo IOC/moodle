@@ -753,8 +753,17 @@ class assign_grading_table extends table_sql implements renderable {
 
         if ($this->assignment->is_any_submission_plugin_enabled()) {
 
-            $o .= $this->output->container(get_string('submissionstatus_' . $row->status, 'assign'),
-                                           array('class'=>'submissionstatus' .$row->status));
+            $deletedsubmission = $deletedclass = '';
+            if ($row->status === ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                $submission = $this->assignment->get_user_submission($row->id, false);
+                if (!$submission or $this->assignment->submission_empty($submission)) {
+                    $deletedsubmission = html_writer::tag('div', get_string('submissionstatus_submitted_deleted', 'assign'));
+                    $deletedclass = 'deleted';
+                }
+            }
+
+            $o .= $this->output->container(get_string('submissionstatus_' . $row->status, 'assign') . $deletedsubmission,
+                                           array('class'=>'submissionstatus' .$row->status . $deletedclass));
             if ($instance->duedate &&
                     $row->timesubmitted > $instance->duedate) {
                 if (!$row->extensionduedate ||
