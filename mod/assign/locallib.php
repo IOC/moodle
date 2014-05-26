@@ -1249,10 +1249,10 @@ class assign {
     public function list_participants($currentgroup, $idsonly) {
         $key = $this->context->id . '-' . $currentgroup;
         if (!isset($this->participants[$key])) {
-            $users = get_enrolled_users($this->context, 'mod/assign:submit', $currentgroup, 'u.*');
-
-            $cm = $this->get_course_module();
-            $users = groups_filter_users_by_course_module_visible($cm, $users);
+            if ($users = get_enrolled_users($this->context, 'mod/assign:submit', $currentgroup, 'u.*')) {
+                $cm = $this->get_course_module();
+                $users = groups_filter_users_by_course_module_visible($cm, $users);
+            }
 
             $this->participants[$key] = $users;
         }
