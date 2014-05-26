@@ -871,7 +871,7 @@ function groups_filter_users_by_course_module_visible($cm, $users) {
     // Group membership sub-query.
     if ($cm->groupingid) {
         // Find out if member of any group in selected activity grouping.
-        $igsql = "SELECT gm.userid
+        $igsql = "SELECT DISTINCT gm.userid
                   FROM {groups_members} gm
                   LEFT JOIN {groupings_groups} gg
                   ON gm.groupid = gg.groupid
@@ -880,7 +880,7 @@ function groups_filter_users_by_course_module_visible($cm, $users) {
 
     } else {
         // No grouping used - check all groups in course.
-        $igsql = "SELECT gm.userid
+        $igsql = "SELECT DISTINCT gm.userid
                   FROM {groups_members} gm
                   LEFT JOIN {groups} g
                   ON gm.groupid = g.id
