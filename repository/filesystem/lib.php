@@ -106,10 +106,10 @@ class repository_filesystem extends repository {
         if ($dh = opendir($abspath)) {
             while (($file = readdir($dh)) != false) {
                 if ($file != '.' and $file != '..') {
-                    if (is_file($abspath . $file)) {
-                        $fileslist[] = $file;
-                    } else {
+                    if (is_dir($abspath . $file)) {
                         $dirslist[] = $file;
+                    } else {
+                        $fileslist[] = $file;
                     }
                 }
             }
