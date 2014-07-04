@@ -4583,7 +4583,9 @@ function forum_delete_discussion($discussion, $fulldelete, $course, $cm, $forum)
         }
     }
 
-    forum_tp_delete_read_records(-1, -1, $discussion->id);
+    if (!$fulldelete) {
+        forum_tp_delete_read_records(-1, -1, $discussion->id);
+    }
 
     if (!$DB->delete_records("forum_discussions", array("id"=>$discussion->id))) {
         $result = false;
@@ -4659,7 +4661,9 @@ function forum_delete_post($post, $children, $course, $cm, $forum, $skipcompleti
 
     if ($DB->delete_records("forum_posts", array("id" => $post->id))) {
 
-        forum_tp_delete_read_records(-1, $post->id);
+        if (!$skipcompletion) {
+            forum_tp_delete_read_records(-1, $post->id);
+        }
 
     // Just in case we are deleting the last post
         forum_discussion_update_last_post($post->discussion);
