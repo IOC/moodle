@@ -273,6 +273,4 @@ function init_add_remove_members_page(Y) {
         remove.set('disabled', isempty);
     });
 
-    addselect = document.getElementById('addselect');
-    addselect.onchange = updateUserSummary;
 }
