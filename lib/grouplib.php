@@ -638,7 +638,7 @@ function groups_allgroups_course_menu($course, $urlroot, $update = false, $activ
  * @return mixed void or string depending on $return param
  */
 function groups_print_activity_menu($cm, $urlroot, $return=false, $hideallparticipants=false) {
-    global $USER, $OUTPUT;
+    global $DB, $CFG, $USER, $OUTPUT;
 
     if ($urlroot instanceof moodle_url) {
         // no changes necessary
@@ -678,9 +678,40 @@ function groups_print_activity_menu($cm, $urlroot, $return=false, $hideallpartic
         $groupsmenu[0] = get_string('allparticipants');
     }
 
+    $unread = false;
+    if ($allowedgroups and $DB->record_exists('modules', array('id' => $cm->module, 'name' => 'forum'))) {
+        $forum = $DB->get_record('forum', array('id' => $cm->instance));
+        if (forum_tp_can_track_forums($forum)) {
+            list ($sqlingroups, $groupids) = $DB->get_in_or_equal(array_keys($allowedgroups), SQL_PARAMS_NAMED);
+            $cutoffdate = isset($CFG->forum_oldpostdays) ? (time() - ($CFG->forum_oldpostdays * 24 * 60 * 60)) : 0;
+            $sql = "SELECT d.groupid, COUNT(p.id) AS count
+                    FROM {forum_posts} p
+                    JOIN {forum_discussions} d ON p.discussion = d.id
+                    LEFT JOIN {forum_read} r ON r.postid = p.id AND r.userid = :userid
+                    WHERE d.forum = :forumid AND d.groupid $sqlingroups
+                    AND d.timemodified >= :timemodified AND p.modified >= :modified AND r.id is NULL
+                    GROUP BY d.groupid";
+            $params = array(
+                'userid' => $USER->id,
+                'forumid' => $cm->instance,
+                'timemodified' => $cutoffdate,
+                'modified' => $cutoffdate,
+            );
+            $unread = $DB->get_records_sql($sql, array_merge($params, $groupids));
+        }
+    }
+
     if ($allowedgroups) {
         foreach ($allowedgroups as $group) {
             $groupsmenu[$group->id] = format_string($group->name);
+            if (isset($unread[$group->id])) {
+                if ($unread[$group->id]->count == 1) {
+                    $unreadstr = get_string('unreadpostsone', 'forum');
+                } else {
+                    $unreadstr = get_string('unreadpostsnumber', 'forum', $unread[$group->id]->count);
+                }
+                $groupsmenu[$group->id] .= " ($unreadstr)";
+            }
         }
     }
 
