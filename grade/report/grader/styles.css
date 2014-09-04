@@ -619,3 +619,10 @@ table#user-grades th.category {
 .path-grade-report-grader td.grade.overridden {
     line-height: 20px;
 }
+.path-grade-report-grader .yui3-scrollview-scrollbar {
+    opacity: 1 !important;
+}
+
+.path-grade-report-grader .yui3-scrollview-scrollbar-horiz {
+    bottom: -2px;
+}
