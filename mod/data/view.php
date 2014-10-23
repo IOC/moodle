@@ -325,7 +325,7 @@
     echo $OUTPUT->header();
 
 /// Check to see if groups are being used here
-    $currentgroup = groups_get_activity_group($cm);
+    $currentgroup = groups_get_activity_group($cm, true);
     $groupmode = groups_get_activity_groupmode($cm);
     $canmanageentries = has_capability('mod/data:manageentries', $context);
     // If a student is not part of a group and seperate groups is enabled, we don't
