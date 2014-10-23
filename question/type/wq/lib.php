@@ -35,5 +35,6 @@ function qtype_wq_cron() {
 
         echo "\n" . $count . " questions updated";
     }
-    die;
+
+    return true;
 }
