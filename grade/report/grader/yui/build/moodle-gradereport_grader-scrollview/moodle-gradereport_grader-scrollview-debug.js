@@ -58,6 +58,10 @@ M.gradereport_grader.scrollview = {
 
         if (!Y.one(this.SELECTORS.STATIC)) {
             node = Y.one('.topscroll');
+        } else {
+            var height = topscroll.get('offsetHeight') + 4;
+            Y.one('.left_scroller').setStyle('marginTop', height + 'px');
+            Y.one('.path-grade-report-grader .gradeparent').setStyle('borderTop', 'none');
         }
 
         Y.on('domready', function () {
