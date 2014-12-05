@@ -41,7 +41,8 @@ if ($bake && ($badge->recipient->id == $USER->id)) {
     $file = badges_bake($id, $badge->badgeid);
     header('Content-Type: image/png');
     header('Content-Disposition: attachment; filename="'. $name .'"');
-    readfile($file);
+    $curl = new curl();
+    echo $curl->get($file);
     ob_flush();
 }
 
