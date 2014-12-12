@@ -1976,7 +1976,10 @@ abstract class lesson_page extends lesson_base {
                 // Only insert a record if we are not reviewing the lesson.
                 if (!$userisreviewing) {
                     if ($this->lesson->retake || (!$this->lesson->retake && $nretakes == 0)) {
-                        $DB->insert_record("lesson_attempts", $attempt);
+                        $attempt->id = $DB->insert_record("lesson_attempts", $attempt);
+                        if (method_exists($this, 'update_image_urls')) {
+                            $this->update_image_urls($attempt, $context);
+                        }
                     }
                 }
                 // "number of attempts remaining" message if $this->lesson->maxattempts > 1
