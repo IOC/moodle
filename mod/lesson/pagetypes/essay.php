@@ -58,6 +58,8 @@ class lesson_page_type_essay extends lesson_page {
         $data->pageid = $this->properties->id;
         if (isset($USER->modattempts[$this->lesson->id])) {
             $essayinfo = unserialize($attempt->useranswer);
+            $essayinfo->answer = file_rewrite_pluginfile_urls($essayinfo->answer, 'pluginfile.php', $PAGE->cm->context->id, 'mod_lesson',
+                                                     'attempt', $attempt->id);
             $data->answer = $essayinfo->answer;
         }
         $mform->set_data($data);
@@ -225,6 +227,8 @@ class lesson_page_type_essay extends lesson_page {
                 // dont think this should ever be reached....
                 $avescore = get_string("nooneansweredthisquestion", "lesson");
             }
+            $essayinfo->answer = file_rewrite_pluginfile_urls($essayinfo->answer, 'pluginfile.php', $answerpage->context->id, 'mod_lesson',
+                                                     'attempt', $useranswer->id);
             $answerdata->answers[] = array(format_text($essayinfo->answer, $essayinfo->answerformat, $formattextdefoptions), $avescore);
             $answerpage->answerdata = $answerdata;
         }
@@ -244,6 +248,32 @@ class lesson_page_type_essay extends lesson_page {
         $essayinfo = unserialize($attempt->useranswer);
         return $essayinfo->score;
     }
+    public function update_image_urls($attemptdata) {
+        global $CFG, $DB, $PAGE;
+
+        $mform = new lesson_display_answer_form_essay($CFG->wwwroot.'/mod/lesson/continue.php', array('contents' => $this->get_contents()));
+        $data = $mform->get_data();
+
+        if (!$data) {
+            return false;
+        }
+
+        if (is_array($data->answer)) {
+            $data->answer_editor = new ArrayObject($data->answer);
+            $options = array(
+                'noclean' => true,
+                'maxfiles' => EDITOR_UNLIMITED_FILES,
+                'maxbytes' => $PAGE->course->maxbytes,
+            );
+            $data = file_postupdate_standard_editor($data, 'answer', $options, context_module::instance($PAGE->cm->id), 'mod_lesson', 'attempt', $attemptdata->id);
+        }
+        $essayinfo = new stdClass;
+        $essayinfo = unserialize($attemptdata->useranswer);
+        $essayinfo->answer = $data->answer;
+        $attemptdata->useranswer = serialize($essayinfo);
+
+        $DB->update_record('lesson_attempts',  $attemptdata);
+    }
 }
 
 class lesson_add_page_form_essay extends lesson_add_page_form_base {
@@ -262,7 +292,7 @@ class lesson_add_page_form_essay extends lesson_add_page_form_base {
 class lesson_display_answer_form_essay extends moodleform {
 
     public function definition() {
-        global $USER, $OUTPUT;
+        global $USER, $OUTPUT, $PAGE;
         $mform = $this->_form;
         $contents = $this->_customdata['contents'];
 
@@ -276,6 +306,8 @@ class lesson_display_answer_form_essay extends moodleform {
                 $attrs = array('disabled' => 'disabled');
                 $hasattempt = true;
                 $useranswertemp = unserialize($USER->modattempts[$lessonid]->useranswer);
+                $useranswertemp->answer = file_rewrite_pluginfile_urls($useranswertemp->answer, 'pluginfile.php', $PAGE->cm->context->id, 'mod_lesson',
+                                                     'attempt', $USER->modattempts[$lessonid]->id);
                 $useranswer = htmlspecialchars_decode($useranswertemp->answer, ENT_QUOTES);
                 $useranswerraw = $useranswertemp->answer;
             }
@@ -302,7 +334,7 @@ class lesson_display_answer_form_essay extends moodleform {
             $mform->addElement('html', $OUTPUT->container($useranswer, 'reviewessay'));
             $this->add_action_buttons(null, get_string("nextpage", "lesson"));
         } else {
-            $mform->addElement('editor', 'answer', get_string('youranswer', 'lesson'), null, null);
+            $mform->addElement('editor', 'answer', get_string('youranswer', 'lesson'), null, array('maxfiles' => EDITOR_UNLIMITED_FILES));
             $mform->setType('answer', PARAM_RAW);
             $this->add_action_buttons(null, get_string("submit", "lesson"));
         }
