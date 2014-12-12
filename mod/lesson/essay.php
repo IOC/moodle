@@ -116,6 +116,7 @@ switch ($mode) {
                 $attempt->correct = 0;
             }
 
+            $essayinfo = file_postupdate_standard_editor($essayinfo, 'response', array('noclean'=>true, 'maxfiles'=>EDITOR_UNLIMITED_FILES, 'maxbytes'=>$PAGE->course->maxbytes), context_module::instance($PAGE->cm->id), 'mod_lesson', 'attempt', $attempt->id);
             $attempt->useranswer = serialize($essayinfo);
 
             $DB->update_record('lesson_attempts', $attempt);
@@ -384,7 +385,9 @@ switch ($mode) {
         $data->attemptid = $attemptid;
         $data->score = $essayinfo->score;
         $data->question = format_string($currentpage->contents, $currentpage->contentsformat);
-        $data->studentanswer = format_string($essayinfo->answer, $essayinfo->answerformat);
+        $essayinfo->answer = file_rewrite_pluginfile_urls($essayinfo->answer, 'pluginfile.php', $context->id, 'mod_lesson',
+                                                     'attempt', $attemptid);
+        $data->studentanswer = format_text($essayinfo->answer, $essayinfo->answerformat);
         $data->response = $essayinfo->response;
         $mform->set_data($data);
 
