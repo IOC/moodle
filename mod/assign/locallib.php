@@ -2310,6 +2310,7 @@ class assign {
         if ($CFG->enableportfolios) {
             require_once($CFG->libdir . '/portfoliolib.php');
 
+            $portfoliohtml = $result;
             $button = new portfolio_add_button();
             $portfolioparams = array('cmid' => $this->get_course_module()->id,
                                      'sid' => $submissionid,
@@ -2329,9 +2330,9 @@ class assign {
             } else {
                 $button->set_formats(PORTFOLIO_FORMAT_PLAINHTML);
             }
-            $result .= $button->to_html();
+            $portfoliohtml .= $button->to_html();
         }
-        return $result;
+        return array($result, $portfoliohtml);
     }
 
     /**
