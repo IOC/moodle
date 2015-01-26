@@ -476,6 +476,7 @@ $string['deletechecktypename'] = 'Are you sure that you want to delete the {$a->
 $string['deletecheckfiles'] = 'Are you absolutely sure you want to delete these files?';
 $string['deletecheckfull'] = 'Are you absolutely sure you want to completely delete {$a} ?';
 $string['deletecheckwarning'] = 'You are about to delete these files';
+$string['deleteconfirmation'] = 'You are about to delete user data and files. This cannot be undone.';
 $string['deletelogs'] = 'Delete logs';
 $string['deleteselected'] = 'Delete selected';
 $string['deleteselectedkey'] = 'Delete selected key';
