@@ -406,22 +406,78 @@ YUI.add('moodle-course-toolboxes', function(Y) {
                 confirmstring = M.util.get_string('deletechecktype', 'moodle', plugindata)
             }
 
-            // Confirm element removal
-            if (!confirm(confirmstring)) {
-                return false;
-            }
+            var confirm = this.confirm_extended(confirmstring);
 
-            // Actually remove the element
-            element.remove();
-            var data = {
-                'class' : 'resource',
-                'action' : 'DELETE',
-                'id'    : Y.Moodle.core_course.util.cm.getId(element)
-            };
-            this.send_request(data);
-            if (M.core.actionmenu && M.core.actionmenu.instance) {
-                M.core.actionmenu.instance.hideMenu();
-            }
+            Y.on('ioc:delete-confirmation', function(e) {
+                confirm.hide();
+                // Actually remove the element
+                element.remove();
+                var data = {
+                    'class' : 'resource',
+                    'action' : 'DELETE',
+                    'id'    : Y.Moodle.core_course.util.cm.getId(element)
+                };
+                this.send_request(data);
+                if (M.core.actionmenu && M.core.actionmenu.instance) {
+                    M.core.actionmenu.instance.hideMenu();
+                }
+            }, this);
+        },
+
+        confirm_extended: function(confirmstring) {
+            var header = Y.Node.create('<span />');
+            var headertext = Y.Node.create('<span />');
+            var imgnode = Y.Node.create('<img src="" />');
+            var message = Y.Node.create('<div />');
+            var obj = this;
+
+            headertext.setHTML(M.util.get_string('confirm', 'moodle'));
+
+            imgnode.setAttrs({
+                'src' : M.util.image_url('i/warning'),
+                'alt' : M.util.get_string('warning', 'moodle')
+            });
+            imgnode.addClass('ioc-warning');
+
+            message.addClass('confirmation-message');
+            message.append('<div>' + M.util.get_string('deleteconfirmation', 'moodle') + '</div>');
+            message.append('<p>' + confirmstring + '</p>');
+
+            var dialog = new Y.Panel({
+                contentBox : Y.Node.create('<div class="ioc-confirmation-dialogue" />'),
+                headerContent: header.append(imgnode).append(headertext),
+                bodyContent: message,
+                zIndex     : 6,
+                centered   : true,
+                modal      : true,
+                render     : true,
+                buttons    : {
+                    header: [
+                        {
+                            name  : 'close',
+                            label : 'x',
+                            action: function() {this.hide(); return false;},
+                            classNames : 'close-button'
+                        },
+                    ],
+                    footer: [
+                        {
+                            name  : 'cancel',
+                            label : M.util.get_string('no', 'moodle'),
+                            action: function() {this.hide(); return false;},
+                            isDefault: true
+                        },
+
+                        {
+                            name     : 'proceed',
+                            label    : M.util.get_string('yes', 'moodle'),
+                            action   : function() {Y.fire('ioc:delete-confirmation');}
+                        }
+                    ]
+                }
+            });
+
+            return dialog;
         },
 
         /**

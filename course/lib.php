@@ -3266,6 +3266,8 @@ function include_course_ajax($course, $usedmodules = array(), $enabledmodules = 
             'afterresource',
             'aftersection',
             'totopofsection',
+            'warning',
+            'deleteconfirmation',
         ), 'moodle');
 
     // Include section-specific strings for formats which support sections.
