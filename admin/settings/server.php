@@ -153,6 +153,18 @@ $temp->add(new admin_setting_configselect('gradehistorylifetime', new lang_strin
                                                                                                      60 => new lang_string('numdays', '', 60),
                                                                                                      30 => new lang_string('numdays', '', 30))));
 
+$temp->add(new admin_setting_configselect('emptytrash', new lang_string('emptytrash', 'admin'), new lang_string('configemptytrash', 'admin'), 24, array(0 => new lang_string('never'),
+                                                                                                                                                                    168 => new lang_string('numdays', '', 7),
+                                                                                                                                                                    144 => new lang_string('numdays', '', 6),
+                                                                                                                                                                    120 => new lang_string('numdays', '', 5),
+                                                                                                                                                                    96 => new lang_string('numdays', '', 4),
+                                                                                                                                                                    72 => new lang_string('numdays', '', 3),
+                                                                                                                                                                    48 => new lang_string('numdays', '', 2),
+                                                                                                                                                                    24 => new lang_string('numdays', '', 1),
+                                                                                                                                                                    12 => new lang_string('numhours', '', 12),
+                                                                                                                                                                    6 => new lang_string('numhours', '', 6),
+                                                                                                                                                                    1 => new lang_string('numhours', '', 1))));
+
 $ADMIN->add('server', $temp);
 
 
