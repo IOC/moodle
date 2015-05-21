@@ -351,7 +351,7 @@ class assign_submission_onlinetext extends assign_submission_plugin {
 
         if ($onlinetextsubmission) {
             // This contains the shortened version of the text plus an optional 'Export to portfolio' button.
-            $text = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+            list($text, ) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
                                                              $onlinetextsubmission->submission,
                                                              $this->get_type(),
                                                              'onlinetext',
@@ -442,11 +442,11 @@ class assign_submission_onlinetext extends assign_submission_plugin {
         if ($onlinetextsubmission) {
 
             // Render for portfolio API.
-            $result .= $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
-                                                                $onlinetextsubmission->submission,
-                                                                $this->get_type(),
-                                                                'onlinetext',
-                                                                'assignsubmission_onlinetext');
+            list(, $result) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+                                                                       $onlinetextsubmission->submission,
+                                                                       $this->get_type(),
+                                                                       'onlinetext',
+                                                                       'assignsubmission_onlinetext');
 
             $plagiarismlinks = '';
 
