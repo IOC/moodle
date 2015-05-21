@@ -346,11 +346,11 @@ class assign_submission_onlinetext extends assign_submission_plugin {
         $showviewlink = true;
 
         if ($onlinetextsubmission) {
-            $text = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
-                                                             $onlinetextsubmission->submission,
-                                                             $this->get_type(),
-                                                             'onlinetext',
-                                                             'assignsubmission_onlinetext');
+            list($text, ) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+                                                                     $onlinetextsubmission->submission,
+                                                                     $this->get_type(),
+                                                                     'onlinetext',
+                                                                     'assignsubmission_onlinetext');
 
             $shorttext = shorten_text($text, 140);
             $plagiarismlinks = '';
@@ -431,11 +431,11 @@ class assign_submission_onlinetext extends assign_submission_plugin {
         if ($onlinetextsubmission) {
 
             // Render for portfolio API.
-            $result .= $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
-                                                                $onlinetextsubmission->submission,
-                                                                $this->get_type(),
-                                                                'onlinetext',
-                                                                'assignsubmission_onlinetext');
+            list(, $result) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+                                                                       $onlinetextsubmission->submission,
+                                                                       $this->get_type(),
+                                                                       'onlinetext',
+                                                                       'assignsubmission_onlinetext');
 
             $plagiarismlinks = '';
 
