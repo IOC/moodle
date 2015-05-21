@@ -141,7 +141,7 @@ class completion_criteria_grade extends completion_criteria {
      * @return string
      */
     public function get_title_detailed() {
-        $graderequired = round($this->gradepass, 2).'%';
+        $graderequired = round($this->gradepass, 2);
         return get_string('gradexrequired', 'completion', $graderequired);
     }
 
@@ -165,7 +165,7 @@ class completion_criteria_grade extends completion_criteria {
         $graderequired = $this->get_title_detailed();
 
         if ($grade) {
-            $grade = round($grade, 2).'%';
+            $grade = round($grade, 2);
         } else {
             $grade = get_string('nograde');
         }
@@ -238,12 +238,12 @@ class completion_criteria_grade extends completion_criteria {
         $details = array();
         $details['type'] = get_string('coursegrade', 'completion');
         $details['criteria'] = get_string('graderequired', 'completion');
-        $details['requirement'] = round($this->gradepass, 2).'%';
+        $details['requirement'] = round($this->gradepass, 2);
         $details['status'] = '';
 
         $grade = round($this->get_grade($completion), 2);
         if ($grade) {
-            $details['status'] = $grade.'%';
+            $details['status'] = $grade;
         }
 
         return $details;
