@@ -346,11 +346,11 @@ class assign_submission_onlinetext extends assign_submission_plugin {
         $showviewlink = true;
 
         if ($onlinetextsubmission) {
-            $text = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
-                                                             $onlinetextsubmission->submission,
-                                                             $this->get_type(),
-                                                             'onlinetext',
-                                                             'assignsubmission_onlinetext');
+            list($text, ) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+                                                                                   $onlinetextsubmission->submission,
+                                                                                   $this->get_type(),
+                                                                                   'onlinetext',
+                                                                                   'assignsubmission_onlinetext');
 
             $shorttext = shorten_text($text, 140);
             $plagiarismlinks = '';
@@ -423,22 +423,22 @@ class assign_submission_onlinetext extends assign_submission_plugin {
      * @return string
      */
     public function view(stdClass $submission) {
-        $result = '';
+        $portfoliohtml = '';
 
         $onlinetextsubmission = $this->get_onlinetext_submission($submission->id);
 
         if ($onlinetextsubmission) {
 
             // Render for portfolio API.
-            $result .= $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
-                                                                $onlinetextsubmission->submission,
-                                                                $this->get_type(),
-                                                                'onlinetext',
-                                                                'assignsubmission_onlinetext');
+            list(, $portfoliohtml) = $this->assignment->render_editor_content(ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
+                                                                                     $onlinetextsubmission->submission,
+                                                                                     $this->get_type(),
+                                                                                     'onlinetext',
+                                                                                     'assignsubmission_onlinetext');
 
         }
 
-        return $result;
+        return $portfoliohtml;
     }
 
     /**
