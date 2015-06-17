@@ -162,6 +162,7 @@ abstract class grouped_parser_processor extends simplified_parser_processor {
      * false if not
      */
     protected function grouped_parent_exists($path) {
+        @set_time_limit(1 * 60 * 60);
         $parentpath = $this->get_parent_path($path);
 
         while ($parentpath != '/') {
