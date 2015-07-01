@@ -110,11 +110,6 @@ function xmldb_assignment_upgrade($oldversion) {
             $DB->set_field("modules", "visible", "0", array("id" => $module->id)); // Hide module.
         }
 
-        $count = $DB->count_records('assignment');
-        if ($count) {
-            mod_assignment_pending_upgrades_notification($count);
-        }
-
         // Assignment savepoint reached.
         upgrade_mod_savepoint(true, 2013121900, 'assignment');
     }
