@@ -447,6 +447,7 @@ $string['showsubscribers'] = 'Show/edit current subscribers';
 $string['singleforum'] = 'A single simple discussion';
 $string['smallmessage'] = '{$a->user} posted in {$a->forumname}';
 $string['startedby'] = 'Started by';
+$string['starttimeerror'] = 'Start date cannot be earlier than present time';
 $string['subject'] = 'Subject';
 $string['subscribe'] = 'Subscribe to this forum';
 $string['subscribediscussion'] = 'Subscribe to this discussion';
