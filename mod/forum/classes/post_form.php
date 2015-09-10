@@ -145,10 +145,10 @@ class mod_forum_post_form extends moodleform {
         if (!empty($CFG->forum_enabletimedposts) && !$post->parent && has_capability('mod/forum:viewhiddentimedposts', $coursecontext)) { // hack alert
             $mform->addElement('header', 'displayperiod', get_string('displayperiod', 'forum'));
 
-            $mform->addElement('date_selector', 'timestart', get_string('displaystart', 'forum'), array('optional'=>true));
+            $mform->addElement('date_time_selector', 'timestart', get_string('displaystart', 'forum'), array('optional'=>true));
             $mform->addHelpButton('timestart', 'displaystart', 'forum');
 
-            $mform->addElement('date_selector', 'timeend', get_string('displayend', 'forum'), array('optional'=>true));
+            $mform->addElement('date_time_selector', 'timeend', get_string('displayend', 'forum'), array('optional'=>true));
             $mform->addHelpButton('timeend', 'displayend', 'forum');
 
         } else {
@@ -262,6 +262,9 @@ class mod_forum_post_form extends moodleform {
         }
         if (empty($data['subject'])) {
             $errors['subject'] = get_string('erroremptysubject', 'forum');
+        }
+        if ($data['timestart'] and $data['timestart'] < time() - 60) {
+            $errors['timestart'] = get_string('starttimeerror', 'forum');
         }
         return $errors;
     }
