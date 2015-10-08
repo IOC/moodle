@@ -158,6 +158,16 @@ if (!empty($messagebody) && !$edit && !$deluser && ($preview || $send)) {
             foreach ($SESSION->emailto[$id] as $user) {
                 $good = $good && message_post_message($USER, $user, $messagebody, $format);
             }
+
+            $eventdata = array();
+            $eventdata['context'] = $coursecontext;
+            $eventdata['userid'] = $USER->id;
+            $eventdata['courseid'] = $course->id;
+            $eventdata['other'] = array('countusers' => count($SESSION->emailto[$id]));
+
+            $event = \core\event\bulk_message_sent::create($eventdata);
+            $event->trigger();
+
             if (!empty($good)) {
                 echo $OUTPUT->heading(get_string('messagedselectedusers'));
                 unset($SESSION->emailto[$id]);
