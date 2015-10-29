@@ -95,6 +95,7 @@ function css_store_css(theme_config $theme, $csspath, $csscontent, $chunk = fals
  */
 function css_write_file($filename, $content) {
     global $CFG;
+    @unlink($filename.'.tmp');
     if ($fp = fopen($filename.'.tmp', 'xb')) {
         fwrite($fp, $content);
         fclose($fp);
