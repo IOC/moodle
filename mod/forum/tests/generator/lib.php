@@ -192,6 +192,9 @@ class mod_forum_generator extends testing_module_generator {
         if (isset($record['mailed'])) {
             $mailed = $record['mailed'];
         }
+        if (!isset($record['pinned'])) {
+            $record['pinned'] = "0";
+        }
 
         $record = (object) $record;
 
