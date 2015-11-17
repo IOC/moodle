@@ -1013,7 +1013,7 @@ function grade_recover_history_grades($userid, $courseid) {
  * @param object $updated_item Optional grade item to be marked for regrading
  * @return bool true if ok, array of errors if problems found. Grade item id => error message
  */
-function grade_regrade_final_grades($courseid, $userid=null, $updated_item=null) {
+function grade_regrade_final_grades($courseid, $userid=null, $updated_item=null, $forceregrade=false) {
     // This may take a very long time.
     \core_php_time_limit::raise();
 
@@ -1034,6 +1034,11 @@ function grade_regrade_final_grades($courseid, $userid=null, $updated_item=null)
             // nothing to do :-)
             return true;
         }
+    }
+
+    $gradeserror = get_config('coursegradeserror', $courseid);
+    if ($gradeserror && !$forceregrade) {
+        return array($course_item->id => "Grades have errors, regrading pending");
     }
 
     // Categories might have to run some processing before we fetch the grade items.
@@ -1131,6 +1136,8 @@ function grade_regrade_final_grades($courseid, $userid=null, $updated_item=null)
             break; // Found error.
         }
     }
+
+    set_config($courseid, count($errors) ? '1' : '0', 'coursegradeserror');
 
     if (count($errors) == 0) {
         if (empty($userid)) {
