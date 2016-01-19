@@ -669,7 +669,7 @@ class mod_forum_external extends external_api {
         // Check they have the view forum capability.
         require_capability('mod/forum:viewdiscussion', $modcontext, null, true, 'noviewdiscussionspermission', 'forum');
 
-        $sort = 'd.' . $sortby . ' ' . $sortdirection;
+        $sort = 'd.pinned DESC, d.' . $sortby . ' ' . $sortdirection;
         $alldiscussions = forum_get_discussions($cm, $sort, true, -1, -1, true, $page, $perpage);
 
         if ($alldiscussions) {
@@ -825,7 +825,8 @@ class mod_forum_external extends external_api {
                                 'userpictureurl' => new external_value(PARAM_URL, 'Post author picture.'),
                                 'usermodifiedpictureurl' => new external_value(PARAM_URL, 'Post modifier picture.'),
                                 'numreplies' => new external_value(PARAM_TEXT, 'The number of replies in the discussion'),
-                                'numunread' => new external_value(PARAM_INT, 'The number of unread discussions.')
+                                'numunread' => new external_value(PARAM_INT, 'The number of unread discussions.'),
+                                'pinned' => new external_value(PARAM_TEXT, 'Is the discussion pinned')
                             ), 'post'
                         )
                     ),
