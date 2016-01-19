@@ -690,6 +690,10 @@ $mform_post->set_data(array(        'attachments'=>$draftitemid,
                                     'timeend'=>$discussion->timeend):
                                 array())+
 
+                            (isset($discussion->pinned) ? array(
+                                    'pinned' => $discussion->pinned) :
+                                array()) +
+
                             (isset($post->groupid)?array(
                                     'groupid'=>$post->groupid):
                                 array())+
@@ -752,6 +756,18 @@ if ($mform_post->is_cancelled()) {
             }
 
             $DB->set_field('forum_discussions' ,'groupid' , $fromform->groupinfo, array('firstpost' => $fromform->id));
+        }
+
+        // When editing first post/discussion.
+        if (!$fromform->parent) {
+            if (has_capability('mod/forum:pindiscussions', $modcontext)) {
+                // Can change pinned if we have capability.
+                $fromform->pinned = !empty($fromform->pinned) ? FORUM_DISCUSSION_PINNED : FORUM_DISCUSSION_UNPINNED;
+            } else {
+                // We don't have the capability to change so keep to previous value.
+                $discussion = $DB->get_record('forum_discussions', array('id' => $fromform->discussion));
+                $fromform->pinned = $discussion->pinned;
+            }
         }
 
         $updatepost = $fromform; //realpost
@@ -911,6 +927,12 @@ if ($mform_post->is_cancelled()) {
         }
         $discussion->timestart = $fromform->timestart;
         $discussion->timeend = $fromform->timeend;
+
+        if (has_capability('mod/forum:pindiscussions', $modcontext) && !empty($fromform->pinned)) {
+            $discussion->pinned = FORUM_DISCUSSION_PINNED;
+        } else {
+            $discussion->pinned = FORUM_DISCUSSION_UNPINNED;
+        }
 
         $message = '';
         if ($discussion->id = forum_add_discussion($discussion, $mform_post, $message)) {
