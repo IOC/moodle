@@ -219,18 +219,18 @@
         case 'blog':
             echo '<br />';
             if (!empty($showall)) {
-                forum_print_latest_discussions($course, $forum, 0, 'plain', '', -1, -1, -1, 0, $cm, $showfavs);
+                forum_print_latest_discussions($course, $forum, 0, 'plain', 'd.pinned DESC, p.created DESC', -1, -1, -1, 0, $cm, $showfavs);
             } else {
-                forum_print_latest_discussions($course, $forum, -1, 'plain', '', -1, -1, $page, $CFG->forum_manydiscussions, $cm, $showfavs);
+                forum_print_latest_discussions($course, $forum, -1, 'plain', 'd.pinned DESC, p.created DESC', -1, -1, $page, $CFG->forum_manydiscussions, $cm, $showfavs);
             }
             break;
 
         default:
             echo '<br />';
             if (!empty($showall)) {
-                forum_print_latest_discussions($course, $forum, 0, 'header', '', -1, -1, -1, 0, $cm, $showfavs);
+                forum_print_latest_discussions($course, $forum, 0, 'header', 'd.pinned DESC, d.timemodified DESC', -1, -1, -1, 0, $cm, $showfavs);
             } else {
-                forum_print_latest_discussions($course, $forum, -1, 'header', '', -1, -1, $page, $CFG->forum_manydiscussions, $cm, $showfavs);
+                forum_print_latest_discussions($course, $forum, -1, 'header', 'd.pinned DESC, d.timemodified DESC', -1, -1, $page, $CFG->forum_manydiscussions, $cm, $showfavs);
             }
 
 
