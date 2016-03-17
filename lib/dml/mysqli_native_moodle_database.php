@@ -1972,4 +1972,26 @@ class mysqli_native_moodle_database extends moodle_database {
             $this->change_database_structure("ALTER TABLE {$prefix}$tablename $rowformat");
         }
     }
+
+    /**
+     * Raise database timeout
+     * @return void
+     */
+    public function raise_timeout() {
+        $timeout = 0;
+
+        $sql = "SHOW SESSION VARIABLES LIKE 'wait_timeout'";
+        $this->query_start($sql, null, SQL_QUERY_AUX);
+        $result = $this->mysqli->query($sql);
+        if ($rec = $result->fetch_assoc()) {
+            $timeout = (int) $rec['Value'];
+        }
+        $this->query_end($result);
+
+        if ($timeout < 3600) {
+            $sql = "SET SESSION wait_timeout = 3600";
+            $this->query_start($sql, null, SQL_QUERY_AUX);
+            $result = $this->mysqli->query($sql);
+        }
+    }
 }

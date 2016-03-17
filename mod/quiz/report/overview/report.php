@@ -376,6 +376,10 @@ class quiz_overview_report extends quiz_attempts_report {
         global $DB;
         $this->unlock_session();
 
+        set_time_limit(3600);
+        raise_memory_limit(MEMORY_EXTRA);
+        $DB->raise_timeout();
+
         $sql = "SELECT quiza.*
                   FROM {quiz_attempts} quiza";
         $where = "quiz = :qid AND preview = 0";
