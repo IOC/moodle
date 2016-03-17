@@ -61,6 +61,8 @@ function cron_run() {
     // Increase memory limit
     raise_memory_limit(MEMORY_EXTRA);
 
+    $DB->raise_timeout();
+
     // Emulate normal session - we use admin accoutn by default
     cron_setup_user();
 
