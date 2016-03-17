@@ -328,7 +328,9 @@ class file_system_filedir extends file_system {
     }
 
     protected function empty_trash() {
-        fulldelete($this->trashdir);
+        global $CFG;
+
+        fulldeletebydate($this->trashdir, time() - (3600 * $CFG->emptytrash));
         set_config('fileslastcleanup', time());
     }
 

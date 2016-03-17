@@ -171,6 +171,20 @@ $temp->add(new admin_setting_configselect('tempdatafoldercleanup', new lang_stri
             168 => new lang_string('numdays', '', 7),
 )));
 
+$temp->add(new admin_setting_configselect('emptytrash', new lang_string('emptytrash', 'admin'),
+        new lang_string('configemptytrash', 'admin'), 24, array(
+            0 => new lang_string('never'),
+            1 => new lang_string('numhours', '', 1),
+            3 => new lang_string('numhours', '', 3),
+            6 => new lang_string('numhours', '', 6),
+            9 => new lang_string('numhours', '', 9),
+            12 => new lang_string('numhours', '', 12),
+            18 => new lang_string('numhours', '', 18),
+            24 => new lang_string('numhours', '', 24),
+            48 => new lang_string('numdays', '', 2),
+            168 => new lang_string('numdays', '', 7),
+)));
+
 $ADMIN->add('server', $temp);
 
 
