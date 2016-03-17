@@ -308,9 +308,12 @@ class backup_controller extends base_controller {
      * @return void Throws and exception of completes
      */
     public function execute_plan() {
+        global $DB;
+
         // Basic/initial prevention against time/memory limits
         core_php_time_limit::raise(1 * 60 * 60); // 1 hour for 1 course initially granted
         raise_memory_limit(MEMORY_EXTRA);
+        $DB->raise_timeout();
         // If this is not a course backup, or single activity backup (e.g. duplicate) inform the plan we are not
         // including all the activities for sure. This will affect any
         // task/step executed conditionally to stop including information

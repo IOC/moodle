@@ -322,10 +322,17 @@ class restore_controller extends base_controller {
         return $this->info;
     }
 
+    public function get_logger() {
+        return $this->logger;
+    }
+
     public function execute_plan() {
+        global $DB;
+
         // Basic/initial prevention against time/memory limits
         core_php_time_limit::raise(1 * 60 * 60); // 1 hour for 1 course initially granted
         raise_memory_limit(MEMORY_EXTRA);
+        $DB->raise_timeout();
         // If this is not a course restore or single activity restore (e.g. duplicate), inform the plan we are not
         // including all the activities for sure. This will affect any
         // task/step executed conditionally to stop processing information
@@ -444,13 +451,15 @@ class restore_controller extends base_controller {
      * Converts from current format to backup::MOODLE format
      */
     public function convert() {
-        global $CFG;
+        global $CFG, $DB;
         require_once($CFG->dirroot . '/backup/util/helper/convert_helper.class.php');
 
         // Basic/initial prevention against time/memory limits
         core_php_time_limit::raise(1 * 60 * 60); // 1 hour for 1 course initially granted
         raise_memory_limit(MEMORY_EXTRA);
         $this->progress->start_progress('Backup format conversion');
+
+        $DB->raise_timeout();
 
         if ($this->status != backup::STATUS_REQUIRE_CONV) {
             throw new restore_controller_exception('cannot_convert_not_required_status');

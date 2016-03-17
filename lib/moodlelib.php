@@ -5281,6 +5281,10 @@ function reset_course_userdata($data) {
     require_once($CFG->dirroot.'/completion/criteria/completion_criteria_date.php');
     require_once($CFG->dirroot.'/group/lib.php');
 
+    set_time_limit(3600);
+    raise_memory_limit(MEMORY_EXTRA);
+    $DB->raise_timeout();
+
     $data->courseid = $data->id;
     $context = context_course::instance($data->courseid);
 
