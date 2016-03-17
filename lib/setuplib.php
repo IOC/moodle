@@ -847,6 +847,8 @@ function initialise_fullme() {
         // Used in load balancing scenarios.
         // Do not abuse this to try to solve lan/wan access problems!!!!!
 
+    } else if ($_SERVER['SCRIPT_FILENAME'] === $CFG->dirroot . '/ok.php') {
+        // Allow ok.php to be called from server
     } else {
         if (($rurl['host'] !== $wwwroot['host']) or
                 (!empty($wwwroot['port']) and $rurl['port'] != $wwwroot['port']) or
