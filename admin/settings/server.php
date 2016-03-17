@@ -209,6 +209,9 @@ $temp->add(new admin_setting_configtext('curlcache', new lang_string('curlcache'
 $temp->add(new admin_setting_configtext('curltimeoutkbitrate', new lang_string('curltimeoutkbitrate', 'admin'),
                                         new lang_string('curltimeoutkbitrate_help', 'admin'), 56, PARAM_INT));
 
+$temp->add(new admin_setting_configcheckbox('outputcompression', new lang_string('outputcompression', 'admin'),
+                                            new lang_string('configoutputcompression', 'admin'), 0));
+
 $ADMIN->add('server', $temp);
 
 

@@ -998,6 +998,11 @@ if (PHPUNIT_TEST) {
 
 }
 
+// Set PHP output compression
+if (!NO_OUTPUT_BUFFERING) {
+    @ini_set('zlib.output_compression', !empty($CFG->outputcompression) ? 'On' : 'Off');
+}
+
 // // try to detect IE6 and prevent gzip because it is extremely buggy browser
 if (!empty($_SERVER['HTTP_USER_AGENT']) and strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6') !== false) {
     ini_set('zlib.output_compression', 'Off');
