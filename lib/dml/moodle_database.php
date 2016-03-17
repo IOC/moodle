@@ -2697,4 +2697,7 @@ abstract class moodle_database {
         // No support unless specified.
         return false;
     }
+
+    public function raise_timeout() {
+    }
 }
