@@ -29,6 +29,13 @@
 function cron_run() {
     global $DB, $CFG, $OUTPUT;
 
+    // allow only one cron process
+    $lock_handle = fopen($CFG->dataroot . '/cron.lock', 'w');
+    if (!flock($lock_handle, LOCK_EX | LOCK_NB)) {
+        echo "Cron already running!\n";
+        die;
+    }
+
     if (CLI_MAINTENANCE) {
         echo "CLI maintenance mode active, cron execution suspended.\n";
         exit(1);
