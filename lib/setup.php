@@ -540,6 +540,10 @@ $CFG->httpswwwroot = $CFG->wwwroot;
 
 require_once($CFG->libdir .'/setuplib.php');        // Functions that MUST be loaded first
 
+// Admin site performance
+require_once($CFG->dirroot . '/admin/tool/siteperf/lib.php');
+tool_siteperf::init();
+
 if (NO_OUTPUT_BUFFERING) {
     // we have to call this always before starting session because it discards headers!
     disable_output_buffering();
