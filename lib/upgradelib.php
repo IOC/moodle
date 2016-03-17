@@ -1562,6 +1562,7 @@ function install_core($version, $verbose) {
 function upgrade_core($version, $verbose) {
     global $CFG, $SITE, $DB, $COURSE;
 
+    $DB->raise_timeout();
     raise_memory_limit(MEMORY_EXTRA);
 
     require_once($CFG->libdir.'/db/upgrade.php');    // Defines upgrades
@@ -1632,8 +1633,9 @@ function upgrade_core($version, $verbose) {
  * @return void, may throw exception
  */
 function upgrade_noncore($verbose) {
-    global $CFG;
+    global $CFG, $DB;
 
+    $DB->raise_timeout();
     raise_memory_limit(MEMORY_EXTRA);
 
     // upgrade all plugins types
