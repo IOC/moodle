@@ -959,8 +959,14 @@ function setup_get_remote_url() {
     }
     $rurl['port'] = $_SERVER['SERVER_PORT'];
     $rurl['path'] = $_SERVER['SCRIPT_NAME']; // Script path without slash arguments
-    $rurl['scheme'] = (empty($_SERVER['HTTPS']) or $_SERVER['HTTPS'] === 'off' or $_SERVER['HTTPS'] === 'Off' or $_SERVER['HTTPS'] === 'OFF') ? 'http' : 'https';
 
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        $rurl['scheme'] = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+    } else if (!empty($_SERVER['HTTPS'])) {
+        $rurl['scheme'] = strtolower($_SERVER['HTTPS']) == 'off' ? 'http' : 'https';
+    } else {
+        $rurl['scheme'] = 'http';
+    }
     if (stripos($_SERVER['SERVER_SOFTWARE'], 'apache') !== false) {
         //Apache server
         $rurl['fullpath'] = $_SERVER['REQUEST_URI'];
