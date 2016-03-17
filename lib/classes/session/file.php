@@ -46,7 +46,7 @@ class file extends handler {
         if (!empty($CFG->session_file_save_path)) {
             $this->sessiondir = $CFG->session_file_save_path;
         } else {
-            $this->sessiondir = "$CFG->dataroot/sessions";
+            $this->sessiondir = session_save_path();
         }
     }
 
