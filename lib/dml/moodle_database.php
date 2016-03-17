@@ -2633,4 +2633,7 @@ abstract class moodle_database {
     public function perf_get_queries_time() {
         return $this->queriestime;
     }
+
+    public function raise_timeout() {
+    }
 }
