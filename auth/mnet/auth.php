@@ -104,9 +104,11 @@ class auth_plugin_mnet extends auth_plugin_base {
             if ($usericonfile = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', 'f1.png')) {
                 $userdata['_mnet_userpicture_timemodified'] = $usericonfile->get_timemodified();
                 $userdata['_mnet_userpicture_mimetype'] = $usericonfile->get_mimetype();
+                $userdata['imagehash'] = $usericonfile->get_contenthash();
             } else if ($usericonfile = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', 'f1.jpg')) {
                 $userdata['_mnet_userpicture_timemodified'] = $usericonfile->get_timemodified();
                 $userdata['_mnet_userpicture_mimetype'] = $usericonfile->get_mimetype();
+                $userdata['imagehash'] = $usericonfile->get_contenthash();
             }
         }
 
@@ -316,19 +318,22 @@ class auth_plugin_mnet extends auth_plugin_base {
 
         // update the local user record with remote user data
         foreach ((array) $remoteuser as $key => $val) {
-
-            if ($key == '_mnet_userpicture_timemodified' and empty($CFG->disableuserimages) and isset($remoteuser->picture)) {
+            if (($key == 'imagehash' or $key == '_mnet_userpicture_timemodified')
+                and empty($CFG->disableuserimages) and isset($remoteuser->picture)) {
                 // update the user picture if there is a newer verion at the identity provider
                 $usercontext = context_user::instance($localuser->id, MUST_EXIST);
                 if ($usericonfile = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', 'f1.png')) {
                     $localtimemodified = $usericonfile->get_timemodified();
+                    $localimagehash = $usericonfile->get_contenthash();
                 } else if ($usericonfile = $fs->get_file($usercontext->id, 'user', 'icon', 0, '/', 'f1.jpg')) {
                     $localtimemodified = $usericonfile->get_timemodified();
+                    $localimagehash = $usericonfile->get_contenthash();
                 } else {
                     $localtimemodified = 0;
+                    $localimagehash = null;
                 }
 
-                if (!empty($val) and $localtimemodified < $val) {
+                if (!empty($val) and ($key == 'imagehash' ? $localimagehash != $val : $localtimemodified < $val)) {
                     mnet_debug('refetching the user picture from the identity provider host');
                     $fetchrequest = new mnet_xmlrpc_client();
                     $fetchrequest->set_method('auth/mnet/auth.php/fetch_user_image');
