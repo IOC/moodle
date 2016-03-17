@@ -6092,7 +6092,8 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     }
 
     // Check if the email should be sent in an other charset then the default UTF-8.
-    if ((!empty($CFG->sitemailcharset) || !empty($CFG->allowusermailcharset))) {
+    if ((!empty($CFG->sitemailcharset) || !empty($CFG->allowusermailcharset))
+        && empty($CFG->local_xtecmail_app)) {
 
         // Use the defined site mail charset or eventually the one preferred by the recipient.
         $charset = $CFG->sitemailcharset;
@@ -6126,6 +6127,36 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     }
     foreach ($tempreplyto as $values) {
         $mail->addReplyTo($values[0], $values[1]);
+    }
+
+    if (!empty($CFG->local_xtecmail_app)) {
+        require_once("$CFG->dirroot/lib/soaplib.php");
+        require_once("$CFG->dirroot/lib/xtecmail/lib.php");
+        $xm = new xtecmail($CFG->local_xtecmail_app,
+                           $CFG->local_xtecmail_sender,
+                           $CFG->local_xtecmail_env);
+        $to = array();
+        foreach ($temprecipients as $recipient) {
+            $to[] = $recipient[0];
+        }
+        $replyto = $tempreplyto ? $tempreplyto[0][0] : $mail->From;
+        $attachments = array();
+        foreach ($mail->GetAttachments() as $attachment) {
+            $attachments[] = array('filename' => $attachment[2],
+                                   'content' => file_get_contents($attachment[0]),
+                                   'mimetype' => $attachment[4]);
+        }
+        try {
+            $xm->send($to, array(), array(), $replyto, $mail->Subject,
+                      $mail->Body, $mail->ContentType, $attachments);
+            set_send_count($user);
+            return true;
+        } catch (xtecmailerror $e) {
+            if (CLI_SCRIPT) {
+                mtrace('Error: xtecmail: '.$e->getMessage());
+            }
+            return false;
+        }
     }
 
     if ($mail->send()) {
