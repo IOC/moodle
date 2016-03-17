@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /** @see evalmath/evalmath.class.php */
-require_once $CFG->dirroot.'/lib/evalmath/evalmath.class.php';
+require_once $CFG->dirroot.'/lib/formulalib.php';
 
 /**
  * This class abstracts evaluation of spreadsheet formulas.
@@ -38,9 +38,9 @@ require_once $CFG->dirroot.'/lib/evalmath/evalmath.class.php';
 class calc_formula {
 
     // private properties
-    var $_em;
-    var $_nfx   = false;   // postfix notation
-    var $_error = false; // last error
+    var $_formula = false;
+    var $_error = false;
+    var $_params = false;
 
     /**
      * Constructor for spreadsheet formula with optional parameters
@@ -49,21 +49,10 @@ class calc_formula {
      * @param array $params associative array of parameters used in formula. All parameter names must be lowercase!
      */
     public function __construct($formula, $params=false) {
-        $this->_em = new EvalMath();
-        $this->_em->suppress_errors = true; // no PHP errors!
-        if (strpos($formula, '=') !== 0) {
-            $this->_error = "missing leading '='";
-            return;
-        }
-        $formula = substr($formula, 1);
-        if (strpos($formula, '=') !== false) {
-            $this->_error = "too many '='";
-            return;
-        }
-        $this->_nfx = $this->_em->nfx($formula);
-        if ($this->_nfx == false) {
-            $this->_error = $this->_em->last_error;
-            return;
+        try {
+            $this->_formula = new FormulaParser($formula);
+        } catch (FormulaException $e) {
+            $this->_error = $e;
         }
         if ($params != false) {
             $this->set_params($params);
@@ -87,7 +76,7 @@ class calc_formula {
      * @param array $params associative array of parameters used in formula
      */
     function set_params($params) {
-        $this->_em->v = $params;
+        $this->_params = $params;
     }
 
     /**
@@ -96,17 +85,17 @@ class calc_formula {
      * @return mixed number if ok, false if error
      */
     function evaluate() {
-        if ($this->_nfx == false) {
+        if (!$this->_formula) {
             return false;
         }
-        $res = $this->_em->pfx($this->_nfx);
-        if ($res === false) {
-            $this->_error = $this->_em->last_error;
+        try {
+            $res = $this->_formula->evaluate($this->_params);
+        } catch (FormulaException $e) {
+            $this->_error = $e;
             return false;
-        } else {
-            $this->_error = false;
-            return $res;
         }
+        $this->_error = false;
+        return $res;
     }
 
     /**
