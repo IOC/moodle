@@ -7511,8 +7511,16 @@ class assign {
         $mform->addElement('hidden', 'action', 'submitgrade');
         $mform->setType('action', PARAM_ALPHA);
 
-        if (!$gradingpanel) {
+        if ($this->get_instance()->submissiondrafts) {
+            $submission = $this->get_user_submission($userid, false);
+            if ($submission and $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+                $mform->addElement('checkbox', 'reverttodraft', '',
+                                   get_string('reverttodraftshort', 'assign'));
+                $mform->closeHeaderBefore('reverttodraft');
+            }
+        }
 
+        if (!$gradingpanel) {
             $buttonarray = array();
             $name = get_string('savechanges', 'assign');
             $buttonarray[] = $mform->createElement('submit', 'savegrade', $name);
@@ -8023,6 +8031,14 @@ class assign {
         // This is for backwards compatibility.
         if (!isset($formdata->sendstudentnotifications) || $formdata->sendstudentnotifications) {
             $this->notify_grade_modified($grade, true);
+        }
+
+        if (!empty($formdata->reverttodraft)) {
+            $submission = $this->get_user_submission($userid, false);
+            if ($submission) {
+                $submission->status = ASSIGN_SUBMISSION_STATUS_DRAFT;
+                $this->update_submission($submission, false);
+            }
         }
     }
 
