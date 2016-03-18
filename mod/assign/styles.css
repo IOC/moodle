@@ -81,6 +81,13 @@
     background-color: #cfefcf;
 }
 
+.path-mod-assign td.submissionstatussubmitteddeleted,
+.path-mod-assign div.submissionstatussubmitteddeleted,
+.path-mod-assign a:link.submissionstatussubmitteddeleted {
+    color: black;
+    background-color: #ffb500;
+}
+
 .path-mod-assign td.submissionlocked,
 .path-mod-assign div.submissionlocked {
     color: black;
