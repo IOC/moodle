@@ -693,9 +693,15 @@ class mod_assign_renderer extends plugin_renderer_base {
         $cell1 = new html_table_cell(get_string('submissionstatus', 'assign'));
         if (!$status->teamsubmissionenabled) {
             if ($status->submission && $status->submission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
-                $statusstr = get_string('submissionstatus_' . $status->submission->status, 'assign');
+                $deletedsubmission = $deletedclass = '';
+                $assignment = new assign($status->context, null, null);
+                if ($status->submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED and $assignment->submission_empty($status->submission)) {
+                    $deletedsubmission = get_string('submissionstatus_submitted_deleted', 'assign');
+                    $deletedclass = 'deleted';
+                }
+                $statusstr = get_string('submissionstatus_' . $status->submission->status, 'assign') . ' ' . $deletedsubmission;
                 $cell2 = new html_table_cell($statusstr);
-                $cell2->attributes = array('class'=>'submissionstatus' . $status->submission->status);
+                $cell2->attributes = array('class' => 'submissionstatus' . $status->submission->status . $deletedclass);
             } else {
                 if (!$status->submissionsenabled) {
                     $cell2 = new html_table_cell(get_string('noonlinesubmissions', 'assign'));
@@ -713,7 +719,14 @@ class mod_assign_renderer extends plugin_renderer_base {
                 $cell2 = new html_table_cell(get_string('nosubmission', 'assign'));
             } else if ($status->teamsubmission && $status->teamsubmission->status != ASSIGN_SUBMISSION_STATUS_NEW) {
                 $teamstatus = $status->teamsubmission->status;
-                $submissionsummary = get_string('submissionstatus_' . $teamstatus, 'assign');
+                $deletedsubmission = $deletedclass = '';
+                $assignment = new assign($status->context, null, null);
+                if ($teamstatus == ASSIGN_SUBMISSION_STATUS_SUBMITTED and $assignment->submission_empty($status->teamsubmission)) {
+                    $deletedsubmission = get_string('submissionstatus_submitted_deleted', 'assign');
+                    $deletedclass = 'deleted';
+                }
+
+                $submissionsummary = get_string('submissionstatus_' . $teamstatus, 'assign') . ' ' . $deletedsubmission;
                 $groupid = 0;
                 if ($status->submissiongroup) {
                     $groupid = $status->submissiongroup->id;
@@ -738,7 +751,7 @@ class mod_assign_renderer extends plugin_renderer_base {
                 }
 
                 $cell2 = new html_table_cell($submissionsummary);
-                $cell2->attributes = array('class'=>'submissionstatus' . $status->teamsubmission->status);
+                $cell2->attributes = array('class'=>'submissionstatus' . $status->teamsubmission->status . $deletedclass);
             } else {
                 $cell2 = new html_table_cell(get_string('nosubmission', 'assign'));
                 if (!$status->submissionsenabled) {
