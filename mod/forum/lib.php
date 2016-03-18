@@ -1556,8 +1556,7 @@ function forum_print_overview($courses,&$htmlarray) {
         if ($count > 0 || $thisunread > 0) {
             $str .= '<div class="overview forum"><div class="name">'.$strforum.': <a title="'.$strforum.'" href="'.$CFG->wwwroot.'/mod/forum/view.php?f='.$forum->id.'">'.
                 $forum->name.'</a></div>';
-            $str .= '<div class="info"><span class="postsincelogin">';
-            $str .= get_string('overviewnumpostssince', 'forum', $count)."</span>";
+            $str .= '<div class="info">';
             if (!empty($showunread)) {
                 $str .= '<div class="unreadposts">'.get_string('overviewnumunread', 'forum', $thisunread).'</div>';
             }
