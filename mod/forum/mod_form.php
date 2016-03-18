@@ -96,9 +96,12 @@ class mod_forum_mod_form extends moodleform_mod {
         if (isset($CFG->forum_subscription)) {
             $defaultforumsubscription = $CFG->forum_subscription;
         } else {
-            $defaultforumsubscription = FORUM_CHOOSESUBSCRIBE;
+            $defaultforumsubscription = FORUM_DISALLOWSUBSCRIBE;
         }
         $mform->setDefault('forcesubscribe', $defaultforumsubscription);
+        if (!has_capability('mod/forum:managesubscriptions', context_course::instance($COURSE->id))) {
+            $mform->freeze(array('forcesubscribe'));
+        }
 
         $options = array();
         $options[FORUM_TRACKING_OPTIONAL] = get_string('trackingoptional', 'forum');
