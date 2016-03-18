@@ -38,6 +38,7 @@ define('ASSIGN_FILTER_NOT_SUBMITTED', 'notsubmitted');
 define('ASSIGN_FILTER_SINGLE_USER', 'singleuser');
 define('ASSIGN_FILTER_REQUIRE_GRADING', 'require_grading');
 define('ASSIGN_FILTER_GRANTED_EXTENSION', 'granted_extension');
+define('ASSIGN_FILTER_DRAFTS', 'drafts');
 
 // Marker filter for grading page.
 define('ASSIGN_MARKER_FILTER_NO_MARKER', -1);
