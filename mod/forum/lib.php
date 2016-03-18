@@ -1444,44 +1444,7 @@ function forum_print_overview($courses,&$htmlarray) {
         return;
     }
 
-    // Courses to search for new posts
-    $coursessqls = array();
-    $params = array();
-    foreach ($courses as $course) {
-
-        // If the user has never entered into the course all posts are pending
-        if ($course->lastaccess == 0) {
-            $coursessqls[] = '(d.course = ?)';
-            $params[] = $course->id;
-
-        // Only posts created after the course last access
-        } else {
-            $coursessqls[] = '(d.course = ? AND p.created > ?)';
-            $params[] = $course->id;
-            $params[] = $course->lastaccess;
-        }
-    }
-    $params[] = $USER->id;
-    $coursessql = implode(' OR ', $coursessqls);
-
-    $sql = "SELECT d.id, d.forum, d.course, d.groupid, COUNT(*) as count "
-                .'FROM {forum_discussions} d '
-                .'JOIN {forum_posts} p ON p.discussion = d.id '
-                ."WHERE ($coursessql) "
-                .'AND p.deleted <> 1 '
-                .'AND p.userid != ? '
-                .'AND (d.timestart <= ? AND (d.timeend = 0 OR d.timeend > ?)) '
-                .'GROUP BY d.id, d.forum, d.course, d.groupid '
-                .'ORDER BY d.course, d.forum';
-    $params[] = time();
-    $params[] = time();
-
-    // Avoid warnings.
-    if (!$discussions = $DB->get_records_sql($sql, $params)) {
-        $discussions = array();
-    }
-
-    $forumsnewposts = forum_filter_user_groups_discussions($discussions);
+    $forumsnewposts = array();
 
     // also get all forum tracking stuff ONCE.
     $trackingforums = array();
@@ -1500,23 +1463,28 @@ function forum_print_overview($courses,&$htmlarray) {
         $params = array($USER->id);
 
         foreach ($trackingforums as $track) {
-            $sql .= '(d.forum = ? AND (d.groupid = -1 OR d.groupid = 0 OR d.groupid = ?)) OR ';
+            $sql .= '(d.forum = ? AND (d.groupid = -1 OR d.groupid = 0 ';
             $params[] = $track->id;
-            if (isset($SESSION->currentgroup[$track->course])) {
-                $groupid =  $SESSION->currentgroup[$track->course];
-            } else {
-                // get first groupid
+            $cm = get_coursemodule_from_instance('forum', $track->id);
+            $groupmode = groups_get_activity_groupmode($cm);
+            $groupids = false;
+            if ($groupmode == VISIBLEGROUPS) {
+                $groupdata = groups_get_course_data($track->course);
+                $groupids = (isset($groupdata->groups) ? $groupdata->groups : false);
+            } else if ($groupmode == SEPARATEGROUPS) {
                 $groupids = groups_get_all_groups($track->course, $USER->id);
-                if ($groupids) {
-                    reset($groupids);
-                    $groupid = key($groupids);
-                    $SESSION->currentgroup[$track->course] = $groupid;
-                } else {
-                    $groupid = 0;
-                }
-                unset($groupids);
             }
-            $params[] = $groupid;
+            if ($groupids) {
+                foreach ($groupids as $group) {
+                    $sql .= 'OR d.groupid = ? ';
+                    $params[] = $group->id;
+                }
+            } else {
+                $sql .= 'OR d.groupid = ? ';
+                $params[] = 0;
+            }
+            unset($groupids);
+            $sql .= ')) OR ';
         }
         $sql = substr($sql,0,-3); // take off the last OR
         $sql .= ') AND p.modified >= ? AND d.timemodified >= ? AND r.id is NULL ';
