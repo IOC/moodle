@@ -2559,6 +2559,9 @@ class assign {
         if ($flags->mailed != 1 || $mailedoverride) {
             $flags->mailed = 0;
         }
+        if ($grade->grade === null) {
+            $flags->mailed = 1;
+        }
 
         return $this->update_user_flags($flags);
     }
@@ -7330,7 +7333,8 @@ class assign {
                     $mform->addHelpButton('gradedisabled', 'gradeoutofhelp', 'assign');
                 }
             } else {
-                $grademenu = array(-1 => get_string("nograde")) + make_grades_menu($this->get_instance()->grade);
+                $grademenu = array(-1 => get_string('nograde'));
+                $grademenu += make_grades_menu($this->get_instance()->grade);
                 if (count($grademenu) > 1) {
                     $gradingelement = $mform->addElement('select', 'grade', get_string('grade') . ':', $grademenu);
 
@@ -7955,6 +7959,9 @@ class assign {
                 // Handle the case when grade is set to No Grade.
                 if (isset($formdata->grade)) {
                     $grade->grade = grade_floatval(unformat_float($formdata->grade));
+                    if ($formdata->grade == -1) {
+                        $grade->grade = null;
+                    }
                 }
             }
             if (isset($formdata->workflowstate) || isset($formdata->allocatedmarker)) {
