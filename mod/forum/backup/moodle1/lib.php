@@ -61,7 +61,7 @@ class moodle1_mod_forum_handler extends moodle1_mod_handler {
                         'completionreplies' => 0,
                         'completionpost' => 0,
                         'maxattachments' => 1,
-                        'introformat' => 0,
+                        'introformat' => FORMAT_HTML,
                     ),
                 )
             ),
