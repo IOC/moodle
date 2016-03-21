@@ -8137,6 +8137,9 @@ function moodle_setlocale($locale='') {
  * @return int The count of words in the specified string
  */
 function count_words($string) {
+    // Replace line breaks and end paragrahs by one space
+    static $toreplace = array('<br />', '</p>');
+    $string = str_replace($toreplace, ' ', $string);
     $string = strip_tags($string);
     // Decode HTML entities.
     $string = html_entity_decode($string);
