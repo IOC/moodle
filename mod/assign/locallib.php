@@ -2639,8 +2639,27 @@ class assign {
             $submission = $this->get_user_submission($grade->userid, false);
         }
 
-        // Only push to gradebook if the update is for the most recent attempt.
+        $gradeattempt = false;
         if ($submission && $submission->attemptnumber != $grade->attemptnumber) {
+            $lastsqlgrade = 'SELECT g.grade, g.attemptnumber
+                                FROM {assign_grades} g
+                                LEFT JOIN {assign_grades} gg
+                                ON (g.userid = gg.userid AND g.assignment = gg.assignment
+                                    AND g.attemptnumber < gg.attemptnumber)
+                                WHERE gg.userid is NULL AND g.assignment = :assignid AND g.userid = :userid';
+            $params = array(
+                'assignid' => $submission->assignment,
+                'userid' => $submission->userid,
+            );
+
+            if ($lastgrade = $DB->get_record_sql($lastsqlgrade, $params)) {
+                $gradeattempt = ( $lastgrade->attemptnumber == $grade->attemptnumber ||
+                    (($lastgrade->attemptnumber - 1) == $grade->attemptnumber && (is_null($lastgrade->grade) || $lastgrade->grade < 0 )));
+            }
+        }
+
+        // Only push to gradebook if the update is for the most recent attempt.
+        if ($submission && $submission->attemptnumber != $grade->attemptnumber && !$gradeattempt) {
             return true;
         }
 
