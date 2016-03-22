@@ -92,7 +92,7 @@ function css_store_css(theme_config $theme, $csspath, $csscontent, $chunk = fals
  */
 function css_write_file($filename, $content) {
     global $CFG;
-    if ($fp = fopen($filename.'.tmp', 'xb')) {
+    if ($fp = @fopen($filename.'.tmp', 'xb')) {
         fwrite($fp, $content);
         fclose($fp);
         rename($filename.'.tmp', $filename);
