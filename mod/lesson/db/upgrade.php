@@ -75,6 +75,7 @@ function xmldb_lesson_upgrade($oldversion) {
     // Moodle v2.6.0 release upgrade line.
     // Put any upgrade step following this.
 
+
     // Moodle v2.7.0 release upgrade line.
     // Put any upgrade step following this.
 
@@ -352,6 +353,17 @@ function xmldb_lesson_upgrade($oldversion) {
 
     // Moodle v3.0.0 release upgrade line.
     // Put any upgrade step following this.
+
+    {
+        // Define field shuffle to be added to lesson_pages.
+        $table = new xmldb_table('lesson_pages');
+        $field = new xmldb_field('shuffle', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '1', 'contentsformat');
+
+        // Conditionally launch add field shuffle.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+    }
 
     return true;
 }
