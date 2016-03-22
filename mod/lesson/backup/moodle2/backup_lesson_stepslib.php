@@ -88,7 +88,7 @@ class backup_lesson_activity_structure_step extends backup_activity_structure_st
         $page = new backup_nested_element('page', array('id'), array(
             'prevpageid','nextpageid','qtype','qoption','layout',
             'display','timecreated','timemodified','title','contents',
-            'contentsformat'
+            'contentsformat','shuffle'
         ));
 
         // The lesson_answers table
