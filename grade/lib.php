@@ -1013,6 +1013,31 @@ function print_grade_page_head($courseid, $active_type, $active_plugin=null,
         echo $returnval;
     }
 
+    $courseitem = grade_item::fetch_course_item($courseid);
+    $context = context_course::instance($courseid);
+    if ($courseitem->needsupdate && has_capability('moodle/grade:edit', $context)) {
+        $params = array(
+            'id' => $courseid,
+            'report' => 'grader',
+            'timepageload' => time(),
+            'regrade' => 1
+        );
+        $text = get_string('coursegradeserror', 'grades');
+        $url = new moodle_url('/grade/report/grader/index.php', $params);
+        $msg = html_writer::start_tag('div', array('class' => 'alert alert-error'));
+        $msg .= html_writer::tag('div', $text, array('class' => 'course-grades-error'));
+        $msg .= html_writer::start_tag('span', array('class' => 'course-grades-error-button'));
+        $text = get_string('updategrades', 'grades');
+        $msg .= $OUTPUT->single_button($url, $text);
+        $msg .= html_writer::end_tag('span');
+        $msg .= html_writer::end_tag('div');
+        if ($return) {
+            $returnval .= $msg;
+        } else {
+            echo $msg;
+        }
+    }
+
     // Guess heading if not given explicitly
     if (!$heading) {
         $heading = $stractive_plugin;
