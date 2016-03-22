@@ -179,6 +179,7 @@ abstract class grade_object {
     public static function fetch_all_helper($table, $classname, $params) {
         global $DB; // Need to introspect DB here.
 
+        @set_time_limit(1 * 60 * 60);
         $instance = new $classname();
 
         $classvars = (array)$instance;
