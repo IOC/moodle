@@ -3456,21 +3456,44 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
     if (empty($post->subjectnoformat)) {
         $postsubject = format_string($postsubject);
     }
+
+    $postmodified = $post->modified;
+    $scheduled = '';
+
+    if (!has_capability('mod/forum:viewhiddentimedposts', $modcontext) and !$post->parent and $discussion->timestart) {
+        $postmodified = $discussion->timestart;
+        $scheduled = html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('i/scheduled'),
+                                                        'class' => 'forum_discussion_scheduled'));
+    }
+
     $output .= html_writer::div($postsubject, 'subject', ['role' => 'heading', 'aria-level' => '2']);
 
     if ($authorhidden) {
         $bytext = userdate($post->created);
     } else {
         $by = new stdClass();
-        $by->date = userdate($post->created);
+        $by->date = userdate($postmodified);
         $by->name = html_writer::link($postuser->profilelink, $postuser->fullname);
-        $bytext = get_string('bynameondate', 'forum', $by);
+        $bytext = get_string('bynameondate', 'forum', $by) . $scheduled;
     }
     $bytextoptions = [
         'role' => 'heading',
         'aria-level' => '2',
     ];
     $output .= html_writer::div($bytext, 'author', $bytextoptions);
+    if (has_capability('mod/forum:viewhiddentimedposts', $modcontext)
+        and !$post->parent and ($discussion->timestart or $discussion->timeend)) {
+        $output .= html_writer::start_tag('div', array('class' => 'forum_discussion_info_scheduled'));
+        if ($discussion->timestart) {
+            $output .= html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('i/scheduled')));
+            $output .= html_writer::tag('span', userdate($discussion->timestart));
+        }
+        if ($discussion->timeend) {
+            $output .= html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('i/show')));
+            $output .= html_writer::tag('span', userdate($discussion->timeend));
+        }
+        $output .= html_writer::end_tag('div');
+    }
     // End topic column.
     $output .= html_writer::end_div();
 
@@ -3912,7 +3935,11 @@ function forum_print_discussion_header(&$post, $forum, $group = -1, $datestring 
     }
 
     echo '<td class="lastpost">';
-    $usedate = (empty($post->timemodified)) ? $post->created : $post->timemodified;
+    if ($post->timestart and $post->replies === 0) {
+        $usedate = $post->timestart;
+    } else {
+        $usedate = (empty($post->timemodified)) ? $post->modified : $post->timemodified;  // Just in case
+    }
     $parenturl = '';
     $usermodified = new stdClass();
     $usermodified->id = $post->usermodified;
