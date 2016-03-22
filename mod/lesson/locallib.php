@@ -3816,9 +3816,7 @@ abstract class lesson_page extends lesson_base {
         $newpage->display = (isset($properties->display))?1:0;
         $newpage->prevpageid = 0; // this is a first page
         $newpage->nextpageid = 0; // this is the only page
-        if (isset($properties->shuffle)) {
-            $newpage->shuffle = $properties->shuffle;
-        }
+        $newpage->shuffle = (isset($properties->shuffle))?1:0;
 
         if ($properties->pageid) {
             $prevpage = $DB->get_record("lesson_pages", array("id" => $properties->pageid), 'id, nextpageid');
@@ -4122,6 +4120,9 @@ abstract class lesson_page extends lesson_base {
                         $event->add_record_snapshot('lesson_attempts', $attempt);
                         $event->trigger();
 
+                        if (method_exists($this, 'update_image_urls')) {
+                            $this->update_image_urls($attempt, $context);
+                        }
                         // Increase the number of attempts made.
                         $nattempts++;
                     }
