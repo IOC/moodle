@@ -161,6 +161,16 @@ if (!empty($messagebody) && !$edit && !$deluser && ($preview || $send)) {
                     $fails[] = get_string('messagedselecteduserfailed', 'moodle', $user);
                 };
             }
+
+            $eventdata = array();
+            $eventdata['context'] = $coursecontext;
+            $eventdata['userid'] = $USER->id;
+            $eventdata['courseid'] = $course->id;
+            $eventdata['other'] = array('countusers' => count($SESSION->emailto[$id]));
+
+            $event = \core\event\bulk_message_sent::create($eventdata);
+            $event->trigger();
+
             if (empty($fails)) {
                 echo $OUTPUT->heading(get_string('messagedselectedusers'));
                 unset($SESSION->emailto[$id]);
