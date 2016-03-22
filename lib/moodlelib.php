@@ -9081,7 +9081,12 @@ function getremoteaddr($default='0.0.0.0') {
     if (!($variablestoskip & GETREMOTEADDR_SKIP_HTTP_X_FORWARDED_FOR)) {
         if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $forwardedaddresses = explode(",", $_SERVER['HTTP_X_FORWARDED_FOR']);
-            $address = $forwardedaddresses[0];
+            if (count($forwardedaddresses) > 1) {
+                $forwardedaddresses = array_filter($forwardedaddresses, create_function('$ip', 'return $ip != "127.0.0.1";'));
+                $address = count($forwardedaddresses) ? array_shift($forwardedaddresses) : $default;
+            } else {
+                $address = $forwardedaddresses[0];
+            }
 
             if (substr_count($address, ":") > 1) {
                 // Remove port and brackets from IPv6.
