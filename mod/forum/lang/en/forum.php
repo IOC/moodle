@@ -400,6 +400,7 @@ $string['numposts'] = '{$a} posts';
 $string['olderdiscussions'] = 'Older discussions';
 $string['oldertopics'] = 'Older topics';
 $string['oldpostdays'] = 'Read after days';
+$string['overviewnumattachments'] = '{$a} attachments';
 $string['overviewnumpostssince'] = '{$a} posts since last login';
 $string['overviewnumfavourite'] = '{$a} total favourite(s)';
 $string['overviewnumunread'] = '{$a} total unread';

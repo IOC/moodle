@@ -4048,6 +4048,13 @@ function forum_print_discussion_header(&$post, $forum, $group = -1, $datestring 
         $strfavcount = get_string('overviewnumfavourite', 'forum', $post->favourite);
         echo html_writer::tag('span', $iconfav, array('class' => 'iconfav', 'title' => $strfavcount));
     }
+
+    if (isset($post->numattachments)) {
+        $iconattach = html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('t/attachment', 'mod_forum')));
+        $strattachcount = get_string('overviewnumattachments', 'forum', $post->numattachments);
+        echo html_writer::tag('span', $iconattach, array('class' => 'iconattach', 'title' => $strattachcount));
+    }
+
     echo "</td>\n";
 
     // Picture
@@ -5879,6 +5886,12 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
         echo '<tbody>';
     }
 
+    $getiddiscussions = function($discussion) {
+        return $discussion->discussion;
+    };
+    $discussionsids = array_map($getiddiscussions, $discussions);
+    $numattachments = forum_get_discussion_num_attachments($forum->id, $context->id, $discussionsids);
+
     foreach ($discussions as $discussion) {
         if ($forum->type == 'qanda' && !has_capability('mod/forum:viewqandawithoutposting', $context) &&
             !forum_user_has_posted($forum->id, $discussion->discussion, $USER->id)) {
@@ -5913,6 +5926,10 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
             $discussion->favourite = $favourites[$discussion->discussion] * -1;
         } else {
             $discussion->favourite = $favourites[$discussion->discussion];
+        }
+
+        if (isset($numattachments[$discussion->discussion])) {
+            $discussion->numattachments = $numattachments[$discussion->discussion]->num;
         }
 
         if (isloggedin()) {
@@ -5976,6 +5993,47 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
     }
 }
 
+/**
+ * How many attachments are in each discussion
+ *
+ * @param  int $forumid
+ * @param  int $contextid
+ * @param  array $discussions
+ * @return object
+ */
+function forum_get_discussion_num_attachments($forumid, $contextid, $discussions = array()) {
+    global $DB;
+
+    if (empty($discussions)) {
+        return array();
+    }
+
+    list($attachsql, $attachparams) = $DB->get_in_or_equal($discussions, SQL_PARAMS_NAMED);
+
+    $sql = "SELECT fd.id, COUNT(f.id) as num
+            FROM {forum_discussions} as fd
+            JOIN {forum_posts} as fp ON fp.discussion=fd.id
+            JOIN {files} as f ON f.itemid=fp.id
+            WHERE fd.forum = :forum
+            AND f.component = :component
+            AND (f.filearea = :filearea1 OR f.filearea = :filearea2)
+            AND f.contextid = :contextid
+            AND f.filename != :filename
+            AND fd.id $attachsql
+            GROUP BY fd.id";
+    $params = array(
+        'forum' => $forumid,
+        'component' => 'mod_forum',
+        'filearea1' => 'attachment',
+        'filearea2' => 'post',
+        'contextid' => $contextid,
+        'filename' => '.'
+    );
+
+    $params = array_merge($params, $attachparams);
+
+    return $DB->get_records_sql($sql, $params);
+}
 
 /**
  * Prints a forum discussion
