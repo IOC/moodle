@@ -1446,13 +1446,17 @@ function forum_print_overview($courses,&$htmlarray) {
             $sql .= ')) OR ';
         }
         $sql = substr($sql,0,-3); // take off the last OR
-        $sql .= ') AND p.modified >= ? AND d.timemodified >= ? AND r.id is NULL ';
-        $sql .= 'AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?)) ';
-        $sql .= 'GROUP BY d.forum,d.course';
+        $sql .= ') AND p.modified >= ? AND d.timemodified >= ? AND r.id is NULL';
         $params[] = $cutoffdate;
         $params[] = $cutoffdate;
-        $params[] = time();
-        $params[] = time();
+        $context = context_module::instance($cm->id);
+        if (!has_capability('mod/forum:viewhiddentimedposts', $context)) {
+            $now = time();
+            $sql .= " AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?))";
+            $params[] = $now;
+            $params[] = $now;
+        }
+        $sql .= ' GROUP BY d.forum,d.course';
 
         if (!$unread = $DB->get_records_sql($sql, $params)) {
             $unread = array();
@@ -6447,11 +6451,20 @@ function forum_tp_mark_forum_read($user, $forumid, $groupid=false) {
     $cutoffdate = time() - ($CFG->forum_oldpostdays*24*60*60);
 
     $groupsel = "";
+    $timedposts = "";
     $params = array($user->id, $forumid, $cutoffdate);
 
     if ($groupid !== false) {
         $groupsel = " AND (d.groupid = ? OR d.groupid = -1)";
         $params[] = $groupid;
+    }
+    $cm = get_coursemodule_from_instance('forum', $forumid);
+    $context = context_module::instance($cm->id);
+    if (!has_capability('mod/forum:viewhiddentimedposts', $context)) {
+        $now = time();
+        $timedposts = " AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?))";
+        $params[] = $now;
+        $params[] = $now;
     }
 
     $sql = "SELECT p.id
@@ -6460,7 +6473,7 @@ function forum_tp_mark_forum_read($user, $forumid, $groupid=false) {
                    LEFT JOIN {forum_read} r        ON (r.postid = p.id AND r.userid = ?)
              WHERE d.forum = ?
                    AND p.modified >= ? AND r.id is NULL
-                   $groupsel";
+                   $groupsel $timedposts";
 
     if ($posts = $DB->get_records_sql($sql, $params)) {
         $postids = array_keys($posts);
