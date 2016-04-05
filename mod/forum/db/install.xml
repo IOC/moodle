@@ -190,5 +190,23 @@
         <KEY NAME="user_discussions" TYPE="unique" FIELDS="userid, discussion" COMMENT="Users may only have one discussion preferences per discussion"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="forum_favourite" COMMENT="Tracks each users favourited posts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="forumid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="discussionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="postid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="forumid-userid" UNIQUE="false" FIELDS="forumid, userid"/>
+        <INDEX NAME="discussionid-userid" UNIQUE="false" FIELDS="discussionid, userid"/>
+        <INDEX NAME="postid-userid" UNIQUE="false" FIELDS="postid, userid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>
