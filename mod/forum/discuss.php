@@ -253,6 +253,9 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_button($searchform);
 $renderer = $PAGE->get_renderer('mod_forum');
 
+$PAGE->requires->string_for_js('togglefavourites', 'mod_forum');
+$PAGE->requires->yui_module('moodle-mod_forum-favourites', 'M.mod_forum.favourites.init');
+
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(format_string($forum->name), 2);
