@@ -1487,14 +1487,15 @@ function forum_print_overview($courses,&$htmlarray) {
             unset($groupids);
             $sql .= ')) OR ';
         }
-        $sql = substr($sql,0,-3); // take off the last OR
+        $sql = substr($sql, 0, -3); // Take off the last OR.
         $sql .= ') AND p.modified >= ? AND d.timemodified >= ? AND r.id is NULL ';
         $sql .= 'AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?)) ';
         $sql .= 'GROUP BY d.forum,d.course';
+        $now = time();
         $params[] = $cutoffdate;
         $params[] = $cutoffdate;
-        $params[] = time();
-        $params[] = time();
+        $params[] = $now;
+        $params[] = $now;
 
         if (!$unread = $DB->get_records_sql($sql, $params)) {
             $unread = array();
@@ -6702,6 +6703,10 @@ function forum_tp_mark_forum_read($user, $forumid, $groupid=false) {
         $groupsel = " AND (d.groupid = ? OR d.groupid = -1)";
         $params[] = $groupid;
     }
+    $now = time();
+    $timedposts = ' AND (d.timestart < ? AND (d.timeend = 0 OR d.timeend > ?))';
+    $params[] = $now;
+    $params[] = $now;
 
     $sql = "SELECT p.id
               FROM {forum_posts} p
@@ -6709,7 +6714,7 @@ function forum_tp_mark_forum_read($user, $forumid, $groupid=false) {
                    LEFT JOIN {forum_read} r        ON (r.postid = p.id AND r.userid = ?)
              WHERE d.forum = ?
                    AND p.modified >= ? AND r.id is NULL
-                   $groupsel";
+                   $groupsel $timedposts";
 
     if ($posts = $DB->get_records_sql($sql, $params)) {
         $postids = array_keys($posts);
