@@ -299,6 +299,7 @@ function forum_delete_instance($id) {
     $DB->delete_records('forum_digests', array('forum' => $forum->id));
     $DB->delete_records('forum_subscriptions', array('forum'=>$forum->id));
     $DB->delete_records('forum_discussion_subs', array('forum' => $forum->id));
+    $DB->delete_records('forum_favourite', array('forumid' => $forum->id));
 
     if ($discussions = $DB->get_records('forum_discussions', array('forum'=>$forum->id))) {
         foreach ($discussions as $discussion) {
@@ -1502,7 +1503,45 @@ function forum_print_overview($courses,&$htmlarray) {
         $unread = array();
     }
 
-    if (empty($unread) and empty($forumsnewposts)) {
+    $sql = 'SELECT d.forum,d.course,COUNT(p.id) AS count '.
+        ' FROM {forum_posts} p '.
+        ' JOIN {forum_discussions} d ON p.discussion = d.id '.
+        ' LEFT JOIN {forum_favourite} f ON f.postid = p.id AND f.userid = ? WHERE (';
+    $params = array($USER->id);
+
+    foreach ($forums as $forum) {
+        $sql .= '(d.forum = ? AND (d.groupid = -1 OR d.groupid = 0 ';
+        $params[] = $forum->id;
+        $cm = get_coursemodule_from_instance('forum', $forum->id);
+        $groupmode = groups_get_activity_groupmode($cm);
+        $groupids = false;
+        if ($groupmode == VISIBLEGROUPS) {
+            $groupdata = groups_get_course_data($forum->course);
+            $groupids = (isset($groupdata->groups) ? $groupdata->groups : false);
+        } else if ($groupmode == SEPARATEGROUPS) {
+            $groupids = groups_get_all_groups($forum->course, $USER->id);
+        }
+        if ($groupids) {
+            foreach ($groupids as $group) {
+                $sql .= 'OR d.groupid = ? ';
+                $params[] = $group->id;
+            }
+        } else {
+            $sql .= 'OR d.groupid = ? ';
+            $params[] = 0;
+        }
+        unset($groupids);
+        $sql .= ')) OR ';
+    }
+    $sql = substr($sql,0,-3); // take off the last OR
+    $sql .= ') AND f.id is NOT NULL';
+    $sql .= ' GROUP BY d.forum,d.course';
+
+    if (!$favourite = $DB->get_records_sql($sql, $params)) {
+        $favourite = array();
+    }
+
+    if (empty($unread) and empty($forumsnewposts) and empty($favourite)) {
         return;
     }
 
@@ -1513,6 +1552,7 @@ function forum_print_overview($courses,&$htmlarray) {
         $count = 0;
         $thisunread = 0;
         $showunread = false;
+        $thisfavourite = 0;
         // either we have something from logs, or trackposts, or nothing.
         if (array_key_exists($forum->id, $forumsnewposts) && !empty($forumsnewposts[$forum->id])) {
             $count = $forumsnewposts[$forum->id]->count;
@@ -1521,6 +1561,9 @@ function forum_print_overview($courses,&$htmlarray) {
             $thisunread = $unread[$forum->id]->count;
             $showunread = true;
         }
+        if (array_key_exists($forum->id,$favourite)) {
+            $thisfavourite = $favourite[$forum->id]->count;
+        }
         if ($count > 0 || $thisunread > 0) {
             $str .= '<div class="overview forum"><div class="name">'.$strforum.': <a title="'.$strforum.'" href="'.$CFG->wwwroot.'/mod/forum/view.php?f='.$forum->id.'">'.
                 $forum->name.'</a></div>';
@@ -1528,6 +1571,16 @@ function forum_print_overview($courses,&$htmlarray) {
             if (!empty($showunread)) {
                 $str .= '<div class="unreadposts">'.get_string('overviewnumunread', 'forum', $thisunread).'</div>';
             }
+            $str .= '</div></div>';
+        }
+        if ($thisfavourite > 0) {
+            $str .= '<div class="overview forum"><div class="name">'.$strforum.': <a title="'.$strforum.'" href="'.$CFG->wwwroot.'/mod/forum/view.php?f='.$forum->id;
+            if ($forum->type != 'single') {
+                $str .= '&showfavs=1';
+            }
+            $str .= '">'.$forum->name.'</a></div>';
+            $str .= '<div class="info">';
+            $str .= '<div class="favoriteposts">'.get_string('overviewnumfavourite', 'forum', $thisfavourite).'</div>';
             $str .= '</div></div>';
         }
         if (!empty($str)) {
@@ -1849,12 +1902,17 @@ function forum_get_all_discussion_posts($discussionid, $sort, $tracking=false) {
         $params[] = $USER->id;
     }
 
+    $fav_sel  = ", ff.postid AS favourite";
+    $fav_join = "LEFT JOIN {forum_favourite} ff ON (ff.postid = p.id AND ff.userid = ?)";
+    $params[] = $USER->id;
+
     $allnames = get_all_user_name_fields(true, 'u');
     $params[] = $discussionid;
-    if (!$posts = $DB->get_records_sql("SELECT p.*, $allnames, u.email, u.picture, u.imagealt $tr_sel
+    if (!$posts = $DB->get_records_sql("SELECT p.*, $allnames, u.email, u.picture, u.imagealt $tr_sel $fav_sel
                                      FROM {forum_posts} p
                                           LEFT JOIN {user} u ON p.userid = u.id
                                           $tr_join
+                                          $fav_join
                                     WHERE p.discussion = ?
                                  ORDER BY $sort", $params)) {
         return array();
@@ -2404,8 +2462,8 @@ function forum_get_firstpost_from_discussion($discussionid) {
  * @param int $perpage
  * @return array
  */
-function forum_count_discussion_replies($forumid, $forumsort="", $limit=-1, $page=-1, $perpage=0) {
-    global $CFG, $DB;
+function forum_count_discussion_replies($forumid, $forumsort="", $limit=-1, $page=-1, $perpage=0, $showfavs=false) {
+    global $CFG, $DB, $USER;
 
     if ($limit > 0) {
         $limitfrom = 0;
@@ -2429,18 +2487,26 @@ function forum_count_discussion_replies($forumid, $forumsort="", $limit=-1, $pag
         $groupby = str_replace('asc', '', $groupby);
     }
 
+    if ($showfavs) {
+        $favtable = ' JOIN {forum_favourite} ff ON (ff.discussionid = d.id AND ff.userid = ' . $USER->id . ')';
+    } else {
+        $favtable = '';
+    }
+
     if (($limitfrom == 0 and $limitnum == 0) or $forumsort == "") {
-        $sql = "SELECT p.discussion, COUNT(p.id) AS replies, MAX(p.id) AS lastpostid
+        $sql = "SELECT p.discussion, COUNT(DISTINCT p.id) AS replies, MAX(p.id) AS lastpostid
                   FROM {forum_posts} p
                        JOIN {forum_discussions} d ON p.discussion = d.id
+                       $favtable
                  WHERE p.parent > 0 AND d.forum = ?
               GROUP BY p.discussion";
         return $DB->get_records_sql($sql, array($forumid));
 
     } else {
-        $sql = "SELECT p.discussion, (COUNT(p.id) - 1) AS replies, MAX(p.id) AS lastpostid
+        $sql = "SELECT p.discussion, (COUNT(DISTINCT p.id) - 1) AS replies, MAX(p.id) AS lastpostid
                   FROM {forum_posts} p
                        JOIN {forum_discussions} d ON p.discussion = d.id
+                       $favtable
                  WHERE d.forum = ?
               GROUP BY p.discussion $groupby $orderby";
         return $DB->get_records_sql($sql, array($forumid), $limitfrom, $limitnum);
@@ -2557,7 +2623,7 @@ function forum_count_discussions($forum, $cm, $course) {
  */
 function forum_get_discussions($cm, $forumsort="", $fullpost=true, $unused=-1, $limit=-1,
                                 $userlastmodified=false, $page=-1, $perpage=0, $groupid = -1,
-                                $updatedsince = 0) {
+                                $updatedsince = 0, $showfavs=false) {
     global $CFG, $DB, $USER;
 
     $timelimit = '';
@@ -2673,13 +2739,19 @@ function forum_get_discussions($cm, $forumsort="", $fullpost=true, $unused=-1, $
         $updatedsincesql = 'AND d.timemodified > ?';
         $params[] = $updatedsince;
     }
+    if ($showfavs) {
+        $favtable = ' JOIN {forum_favourite} ff ON (ff.discussionid = d.id AND ff.userid = ' . $USER->id . ')';
+    } else {
+        $favtable = '';
+    }
 
     $allnames = get_all_user_name_fields(true, 'u');
-    $sql = "SELECT $postdata, d.name, d.timemodified, d.usermodified, d.groupid, d.timestart, d.timeend, d.pinned,
+    $sql = "SELECT DISTINCT $postdata, d.name, d.timemodified, d.usermodified, d.groupid, d.timestart, d.timeend, d.pinned,
                    $allnames, u.email, u.picture, u.imagealt $umfields
               FROM {forum_discussions} d
                    JOIN {forum_posts} p ON p.discussion = d.id
                    JOIN {user} u ON p.userid = u.id
+                   $favtable
                    $umtable
              WHERE d.forum = ? AND p.parent = 0
                    $timelimit $groupselect $updatedsincesql
@@ -2953,7 +3025,7 @@ function forum_get_discussions_unread($cm) {
  * @param object $cm
  * @return array
  */
-function forum_get_discussions_count($cm) {
+function forum_get_discussions_count($cm, $showfavs = false) {
     global $CFG, $DB, $USER;
 
     $now = floor(time() / 60) * 60;
@@ -2985,6 +3057,12 @@ function forum_get_discussions_count($cm) {
         $groupselect = "";
     }
 
+    if ($showfavs) {
+        $favtable = ' JOIN {forum_favourite} ff ON (ff.discussionid = d.id AND ff.userid = ' . $USER->id . ')';
+    } else {
+        $favtable = "";
+    }
+
     $timelimit = "";
 
     if (!empty($CFG->forum_enabletimedposts)) {
@@ -3005,12 +3083,84 @@ function forum_get_discussions_count($cm) {
 
     $sql = "SELECT COUNT(d.id)
               FROM {forum_discussions} d
+                    $favtable
              WHERE d.forum = ?
                    $groupselect $timelimit";
 
     return $DB->get_field_sql($sql, $params);
 }
 
+
+/**
+ *
+ * @global object
+ * @global object
+ * @global object
+ * @uses CONTEXT_MODULE
+ * @uses VISIBLEGROUPS
+ * @param object $cm
+ * @return array
+ */
+function forum_get_discussions_favourite($cm) {
+    global $CFG, $DB, $USER;
+
+    $now = round(time(), -2);
+
+    $params = array();
+    $groupmode    = groups_get_activity_groupmode($cm);
+    $currentgroup = groups_get_activity_group($cm);
+    $modcontext = context_module::instance($cm->id);
+
+    if ($groupmode) {
+
+        if ($groupmode == VISIBLEGROUPS or has_capability('moodle/site:accessallgroups', $modcontext)) {
+            if ($currentgroup) {
+                $groupselect = "AND (d.groupid = :currentgroup OR d.groupid = -1)";
+                $params['currentgroup'] = $currentgroup;
+            } else {
+                $groupselect = "";
+            }
+
+        } else {
+            //separate groups without access all
+            if ($currentgroup) {
+                $groupselect = "AND (d.groupid = :currentgroup OR d.groupid = -1)";
+                $params['currentgroup'] = $currentgroup;
+            } else {
+                $groupselect = "AND d.groupid = -1";
+            }
+        }
+    } else {
+        $groupselect = "";
+    }
+
+    if (!empty($CFG->forum_enabletimedposts) && !has_capability('mod/forum:viewhiddentimedposts', $modcontext)) {
+        $timedsql = "AND d.timestart < :now1 AND (d.timeend = 0 OR d.timeend > :now2)";
+        $params['now1'] = $now;
+        $params['now2'] = $now;
+    } else {
+        $timedsql = "";
+    }
+
+    $sql = "SELECT d.id, COUNT(p.id) AS favourite
+              FROM {forum_discussions} d
+                   JOIN {forum_posts} p ON p.discussion = d.id
+                   LEFT JOIN {forum_favourite} f ON (f.postid = p.id AND f.userid = $USER->id)
+             WHERE d.forum = {$cm->instance}
+                   AND f.id is NOT NULL
+                   $groupselect
+                   $timedsql
+          GROUP BY d.id";
+
+    if ($favourites = $DB->get_records_sql($sql, $params)) {
+        foreach ($favourites as $favourite) {
+            $favourites[$favourite->id] = $favourite->favourite;
+        }
+        return $favourites;
+    } else {
+        return array();
+    }
+}
 
 // OTHER FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -3286,6 +3436,8 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
         $str->displaymode     = get_user_preferences('forum_displaymode', $CFG->forum_displaymode);
         $str->markread     = get_string('markread', 'forum');
         $str->markunread   = get_string('markunread', 'forum');
+        $str->markasfav    = get_string('markasfav', 'forum');
+        $str->markasnofav  = get_string('markasnofav', 'forum');
     }
 
     $discussionlink = new moodle_url('/mod/forum/discuss.php', array('d'=>$post->discussion));
@@ -3398,6 +3550,14 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
             $commands[] = $porfoliohtml;
         }
     }
+
+    if (!$link and forum_user_can_see_post($forum, $discussion, $post, null, $cm)) {
+        if (!empty($post->favourite)) {
+            $commands[] = array('url'=>new moodle_url('/mod/forum/post.php', array('unfav'=>$post->id)), 'text'=>$str->markasnofav);
+        } else {
+            $commands[] = array('url'=>new moodle_url('/mod/forum/post.php', array('fav'=>$post->id)), 'text'=>$str->markasfav);
+        }
+    }
     // Finished building commands
 
 
@@ -3432,6 +3592,12 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
 
     // Flag to indicate whether we should hide the author or not.
     $authorhidden = forum_is_author_hidden($post, $forum);
+
+    if (!empty($post->favourite) and $post->favourite > 0) {
+        // apply class when favourite and no blog-like forum
+        $forumpostclass .= ' post_favourite';
+    }
+
     $postbyuser = new stdClass;
     $postbyuser->post = $post->subject;
     $postbyuser->user = $postuser->fullname;
@@ -3455,6 +3621,20 @@ function forum_print_post($post, $discussion, $forum, &$cm, $course, $ownpost=fa
     $postsubject = $post->subject;
     if (empty($post->subjectnoformat)) {
         $postsubject = format_string($postsubject);
+    }
+
+    if (!empty($post->favourite)) {
+        $attrs = array(
+                'src' => $OUTPUT->image_url('star', 'theme'),
+                'class' => 'postfav',
+        );
+        if ($post->favourite < 0) {
+            $attrs['title'] =  get_string('overviewnumfavourite', 'forum', abs($post->favourite));
+        }
+        $postsubject .= html_writer::empty_tag('img', $attrs);
+        $postsubject .= html_writer::start_tag('span', array('class' => 'forumfavouritelink forumhidefavouritelink'));
+        $postsubject .= html_writer::link(new moodle_url('/mod/forum/discuss.php', array('d' => $post->discussion), 'p'.$post->id), get_string('showfavincontext', 'mod_forum'));
+        $postsubject .= html_writer::end_tag('span');
     }
 
     $postmodified = $post->modified;
@@ -3862,6 +4042,12 @@ function forum_print_discussion_header(&$post, $forum, $group = -1, $datestring 
     }
 
     echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>';
+    if ($post->favourite) {
+        $strfavcount = '';
+        $iconfav = html_writer::empty_tag('img', array('src' => $OUTPUT->image_url('star', 'theme')));
+        $strfavcount = get_string('overviewnumfavourite', 'forum', $post->favourite);
+        echo html_writer::tag('span', $iconfav, array('class' => 'iconfav', 'title' => $strfavcount));
+    }
     echo "</td>\n";
 
     // Picture
@@ -4717,6 +4903,7 @@ function forum_delete_discussion($discussion, $fulldelete, $course, $cm, $forum)
 
     if (!$fulldelete) {
         forum_tp_delete_read_records(-1, -1, $discussion->id);
+        $DB->delete_records('forum_favourite', array('discussionid' => $discussion->id));
     }
 
     // Discussion subscriptions must be removed before discussions because of key constraints.
@@ -4797,6 +4984,7 @@ function forum_delete_post($post, $children, $course, $cm, $forum, $skipcompleti
 
         if (!$skipcompletion) {
             forum_tp_delete_read_records(-1, $post->id);
+            $DB->delete_records('forum_favourite', array('postid' => $post->id));
         }
 
     // Just in case we are deleting the last post
@@ -5453,7 +5641,7 @@ function forum_user_can_see_post($forum, $discussion, $post, $user = null, $cm =
  *
  */
 function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $displayformat = 'plain', $sort = '',
-                                        $currentgroup = -1, $groupmode = -1, $page = -1, $perpage = 100, $cm = null) {
+                                        $currentgroup = -1, $groupmode = -1, $page = -1, $perpage = 100, $cm = null, $showfavs = false) {
     global $CFG, $USER, $OUTPUT;
 
     require_once($CFG->dirroot . '/course/lib.php');
@@ -5559,11 +5747,28 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
         }
     }
 
+    if ($favcount = forum_get_discussions_count($cm, true)) {
+        echo '<div class="singlebutton forumfavourites">';
+        echo '<form id="showfavsform" method="get" action="' . $CFG->wwwroot .'/mod/forum/view.php">';
+        echo '<div>';
+        echo '<input type="hidden" name="id" value="' . $cm->id .'" />';
+        if ($showfavs) {
+            $buttonfav = get_string('showallmessages', 'forum');
+        } else {
+            $buttonfav = get_string('showfavouritemessages', 'forum', $favcount);
+            echo '<input type="hidden" name="showfavs" value="1" />';
+        }
+        echo '<input type="submit" value="' . $buttonfav . '" />';
+        echo '</div>';
+        echo '</form>';
+        echo "</div>\n";
+    }
+
 // Get all the recent discussions we're allowed to see
 
     $getuserlastmodified = ($displayformat == 'header');
 
-    if (! $discussions = forum_get_discussions($cm, $sort, $fullpost, null, $maxdiscussions, $getuserlastmodified, $page, $perpage) ) {
+    if (! $discussions = forum_get_discussions($cm, $sort, $fullpost, null, $maxdiscussions, $getuserlastmodified, $page, $perpage, -1, 0, $showfavs) ) {
         echo '<div class="forumnodiscuss">';
         if ($forum->type == 'news') {
             echo '('.get_string('nonews', 'forum').')';
@@ -5579,19 +5784,25 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
 // If we want paging
     if ($page != -1) {
         ///Get the number of discussions found
-        $numdiscussions = forum_get_discussions_count($cm);
+        $numdiscussions = forum_get_discussions_count($cm, $showfavs);
 
+        echo '<div class="forum">';
         ///Show the paging bar
-        echo $OUTPUT->paging_bar($numdiscussions, $page, $perpage, "view.php?f=$forum->id");
+        if ($showfavs) {
+            echo $OUTPUT->paging_bar($numdiscussions, $page, $perpage, "view.php?f=$forum->id&showfavs=1");
+        } else {
+            echo $OUTPUT->paging_bar($numdiscussions, $page, $perpage, "view.php?f=$forum->id");
+        }
+        echo '</div>';
         if ($numdiscussions > 1000) {
             // saves some memory on sites with very large forums
-            $replies = forum_count_discussion_replies($forum->id, $sort, $maxdiscussions, $page, $perpage);
+            $replies = forum_count_discussion_replies($forum->id, $sort, $maxdiscussions, $page, $perpage, $showfavs);
         } else {
-            $replies = forum_count_discussion_replies($forum->id);
+            $replies = forum_count_discussion_replies($forum->id, "", -1, -1, 0, $showfavs);
         }
 
     } else {
-        $replies = forum_count_discussion_replies($forum->id);
+        $replies = forum_count_discussion_replies($forum->id, "", -1, -1, 0, $showfavs);
 
         if ($maxdiscussions > 0 and $maxdiscussions <= count($discussions)) {
             $olddiscussionlink = true;
@@ -5615,6 +5826,8 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
     } else {
         $unreads = array();
     }
+
+    $favourites = forum_get_discussions_favourite($cm);
 
     if ($displayformat == 'header') {
         echo '<table cellspacing="0" class="forumheaderlist">';
@@ -5677,6 +5890,15 @@ function forum_print_latest_discussions($course, $forum, $maxdiscussions = -1, $
             } else {
                 $discussion->unread = $unreads[$discussion->discussion];
             }
+        }
+
+        if (empty($favourites[$discussion->discussion])) {
+            $discussion->favourite = 0;
+        } else if ($forum->type == 'blog') {
+            // Blog-like forums display discussions differently, negative int is necessary to detect it.
+            $discussion->favourite = $favourites[$discussion->discussion] * -1;
+        } else {
+            $discussion->favourite = $favourites[$discussion->discussion];
         }
 
         if (isloggedin()) {

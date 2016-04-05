@@ -35,6 +35,8 @@ $prune   = optional_param('prune', 0, PARAM_INT);
 $name    = optional_param('name', '', PARAM_CLEAN);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 $groupid = optional_param('groupid', null, PARAM_INT);
+$fav     = optional_param('fav', 0, PARAM_INT);
+$unfav   = optional_param('unfav', 0, PARAM_INT);
 
 $PAGE->set_url('/mod/forum/post.php', array(
         'reply' => $reply,
@@ -45,6 +47,8 @@ $PAGE->set_url('/mod/forum/post.php', array(
         'name'  => $name,
         'confirm'=>$confirm,
         'groupid'=>$groupid,
+        'fav'    =>$fav,
+        'unfav'  =>$unfav,
         ));
 //these page_params will be passed as hidden variables later in the form.
 $page_params = array('reply'=>$reply, 'forum'=>$forum, 'edit'=>$edit);
@@ -527,6 +531,46 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
 
     echo $OUTPUT->footer();
     die;
+} else if (!empty($fav) or !empty($unfav)) {  // User mark/unmark as favourite
+    $postfavid = (!empty($fav)?$fav:$unfav);
+    if (! $post = forum_get_post_full($postfavid)) {
+        print_error('invalidparentpostid', 'forum');
+    }
+    if (! $discussion = $DB->get_record("forum_discussions", array("id" => $post->discussion))) {
+        print_error('notpartofdiscussion', 'forum');
+    }
+    if (! $forum = $DB->get_record("forum", array("id" => $discussion->forum))) {
+        print_error('invalidforumid', 'forum');
+    }
+    if (! $course = $DB->get_record("course", array("id" => $discussion->course))) {
+        print_error('invalidcourseid');
+    }
+    if (! $cm = get_coursemodule_from_instance("forum", $forum->id, $course->id)) {
+        print_error('invalidcoursemodule');
+    }
+
+    // Ensure lang, theme, etc. is set up properly. MDL-6926
+    $PAGE->set_cm($cm, $course, $forum);
+
+    if (! forum_user_can_see_post($forum, $discussion, $post, null, $cm)) {
+        print_error('nofavdiscussionspermission', 'forum');
+    }
+
+    $data =  array (
+        'userid' => $USER->id,
+        'forumid' => $forum->id,
+        'discussionid' => $discussion->id,
+        'postid' => $post->id,
+    );
+
+    if (!empty($fav)) {
+        if(!$DB->record_exists('forum_favourite', $data)) {
+            $DB->insert_record('forum_favourite', $data);
+        }
+    } else {
+        $DB->delete_records('forum_favourite', $data);
+    }
+    redirect(new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id)));
 } else {
     print_error('unknowaction');
 

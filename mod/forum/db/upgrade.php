@@ -47,6 +47,36 @@ function xmldb_forum_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2014111003) {
+
+        // Define table forum_favourite to be created.
+        $table = new xmldb_table('forum_favourite');
+
+        // Adding fields to table forum_favourite.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('forumid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('discussionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('postid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table forum_favourite.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Adding indexes to table forum_favourite.
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+        $table->add_index('forumid-userid', XMLDB_INDEX_NOTUNIQUE, array('forumid, userid'));
+        $table->add_index('discussionid-userid', XMLDB_INDEX_NOTUNIQUE, array('discussionid, userid'));
+        $table->add_index('postid-userid', XMLDB_INDEX_NOTUNIQUE, array('postid, userid'));
+
+        // Conditionally launch create table for forum_favourite.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Forum savepoint reached.
+        upgrade_mod_savepoint(true, 2014111003, 'forum');
+    }
+
     if ($oldversion < 2016091200) {
 
         // Define field lockdiscussionafter to be added to forum.
