@@ -215,6 +215,7 @@ $string['everyoneisnowsubscribed'] = 'Everyone is now subscribed to this forum';
 $string['everyoneissubscribed'] = 'Everyone is subscribed to this forum';
 $string['existingsubscribers'] = 'Existing subscribers';
 $string['exportdiscussion'] = 'Export whole discussion to portfolio';
+$string['exportforum'] = 'Export whole forum to portfolio';
 $string['forcedreadtracking'] = 'Allow forced read tracking';
 $string['forcedreadtracking_desc'] = 'Allows forums to be set to forced read tracking. Will result in decreased performance for some users, particularly on courses with many forums and posts. When off, any forums previously set to Forced are treated as optional.';
 $string['forcesubscribed_help'] = 'This forum has been configured so that you cannot unsubscribe from discussions.';
