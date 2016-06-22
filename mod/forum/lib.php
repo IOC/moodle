@@ -2437,7 +2437,7 @@ function forum_count_discussion_replies($forumid, $forumsort="", $limit=-1, $pag
         return $DB->get_records_sql($sql, array($forumid));
 
     } else {
-        $sql = "SELECT p.discussion, (COUNT(DISTINCT p.id) - 1) AS replies, MAX(p.id) AS lastpostid
+        $sql = "SELECT p.id, p.discussion, (COUNT(DISTINCT p.id) - 1) AS replies, MAX(p.id) AS lastpostid
                   FROM {forum_posts} p
                        JOIN {forum_discussions} d ON p.discussion = d.id
                        $favtable
