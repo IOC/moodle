@@ -185,6 +185,9 @@ $temp->add(new admin_setting_configselect('emptytrash', new lang_string('emptytr
             168 => new lang_string('numdays', '', 7),
 )));
 
+$temp->add(new admin_setting_configcheckbox('keeptempdirectoriesonbackup', new lang_string('keeptempdirectoriesonbackup'),
+                                            new lang_string('keeptempdirectoriesonbackup_help'), 0));
+
 $ADMIN->add('server', $temp);
 
 
