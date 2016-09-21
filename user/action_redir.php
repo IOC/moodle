@@ -34,6 +34,7 @@ $actions = array(
         'messageselect.php',
         'addnote.php',
         'groupaddnote.php',
+        'exportcsv.php',
         );
 
 if (array_search($formaction, $actions) === false) {
