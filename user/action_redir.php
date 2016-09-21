@@ -31,7 +31,7 @@ $PAGE->set_url('/user/action_redir.php', array('formaction' => $formaction, 'id'
 list($formaction) = explode('?', $formaction, 2);
 
 // This page now only handles the bulk enrolment change actions, other actions are done with ajax.
-$actions = array('bulkchange.php');
+$actions = array('bulkchange.php', 'exportcsv.php');
 
 if (array_search($formaction, $actions) === false) {
     print_error('unknownuseraction');
@@ -169,6 +169,8 @@ if ($formaction == 'bulkchange.php') {
     echo $OUTPUT->footer();
     exit();
 
+} else if($formaction == 'exportcsv.php') {
+    require_once($formaction);
 } else {
     throw new coding_exception('invalidaction');
 }
