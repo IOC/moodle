@@ -843,6 +843,11 @@ if ($bulkoperations) {
         $displaylist['groupaddnote.php'] = get_string('groupaddnewnote', 'notes');
     }
 
+    if (has_capability('moodle/grade:manage', $context) and has_capability('moodle/user:viewhiddendetails', $context)) {
+        $displaylist['exportcsv.php'] = get_string('exportto', 'grades') . ' ' .
+            get_string('csv', 'grades');
+    }
+
     echo $OUTPUT->help_icon('withselectedusers');
     echo html_writer::tag('label', get_string("withselectedusers"), array('for' => 'formactionid'));
     echo html_writer::select($displaylist, 'formaction', '', array('' => 'choosedots'), array('id' => 'formactionid'));
