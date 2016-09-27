@@ -203,10 +203,6 @@ class grade_report_grader extends grade_report {
                 $datatype = 'grade';
             } else if (strpos($varname, 'feedback') === 0) {
                 $datatype = 'feedback';
-            } else if ($varname == 'regrade') {
-                grade_regrade_final_grades($this->course->id, null, null, null, true);
-                $url = new moodle_url('index.php', array('id' => $this->course->id));
-                redirect($url);
             } else {
                 continue;
             }
