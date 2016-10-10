@@ -8391,3 +8391,14 @@ class assign_portfolio_caller extends portfolio_module_caller_base {
         return array(PORTFOLIO_FORMAT_FILE, PORTFOLIO_FORMAT_LEAP2A);
     }
 }
+
+/**
+ * Customized assign class to allow calling get_all_submissions
+ *
+ * @package   mod_assign
+ */
+class customassign extends assign {
+    public function get_number_attempts($userid) {
+        return count($this->get_all_submissions($userid));
+    }
+}
