@@ -42,7 +42,7 @@ $readonly = optional_param('readonly', false, PARAM_BOOL);
 $cm = \get_coursemodule_from_instance('assign', $assignmentid, 0, false, MUST_EXIST);
 $context = \context_module::instance($cm->id);
 
-$assignment = new \assign($context, null, null);
+$assignment = new \customassign($context, null, null);
 
 require_login($assignment->get_course(), false, $cm);
 
@@ -78,6 +78,12 @@ if ($action == 'loadallpages') {
     $filearea = document_services::PAGE_IMAGE_FILEAREA;
     if ($readonly) {
         $filearea = document_services::PAGE_IMAGE_READONLY_FILEAREA;
+    }
+
+    $countattempts = $assignment->get_number_attempts($userid);
+
+    if ($attemptnumber < ($countattempts - 1)) {
+        $draft = false;
     }
 
     foreach ($pages as $id => $pagefile) {
