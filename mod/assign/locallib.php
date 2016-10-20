@@ -1994,6 +1994,22 @@ class assign {
                 // Therefore we coalesce the current time into the timecreated field, and the max possible integer into
                 // the ID field.
                 $orderby = "COALESCE(s.timecreated, " . time() . ") ASC, COALESCE(s.id, " . PHP_INT_MAX . ") ASC, um.id ASC";
+            } else {
+                $filter = get_user_preferences('assign_filter', '');
+                if ($filter == ASSIGN_FILTER_REQUIRE_GRADING) {
+                    $additionaljoins .= " LEFT JOIN {assign_user_mapping} um
+                              ON u.id = um.userid
+                             AND um.assignment = :assignmentid1
+                       LEFT JOIN {assign_submission} s
+                              ON u.id = s.userid
+                             AND s.assignment = :assignmentid2
+                             AND s.latest = 1
+                        ";
+                    $params['assignmentid1'] = (int) $instance->id;
+                    $params['assignmentid2'] = (int) $instance->id;
+
+                    $orderby = "COALESCE(s.timemodified, " . time() . ") ASC";
+                }
             }
 
             if ($instance->markingworkflow &&
