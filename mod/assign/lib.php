@@ -581,7 +581,27 @@ function assign_get_grade_details_for_print_overview(&$unmarkedsubmissions, $sql
     if (!isset($unmarkedsubmissions)) {
         // Build up and array of unmarked submissions indexed by assignment id/ userid
         // for use where the user has grading rights on assignment.
-        $dbparams = array_merge(array(ASSIGN_SUBMISSION_STATUS_SUBMITTED), $assignmentidparams);
+
+        $cm = get_coursemodule_from_instance('assign', $assignment->id);
+        $currentgroup = groups_get_activity_group($cm, true);
+        list($esql, $eparams) = get_enrolled_sql($context, 'mod/assign:submit', $currentgroup, true);
+
+        $numassignparams = count($assignmentidparams);
+        if ($numassignparams) {
+            $prefix = 'asg';
+            $i = 0;
+            $customkeys = array();
+            while ($i < $numassignparams) {
+                $customkeys[] = $prefix . $i;
+                $i += 1;
+            }
+            $assignmentidparams = array_combine($customkeys, $assignmentidparams);
+            foreach ($customkeys as $key => $value) {
+                $customkeys[$key] = ':' . $value;
+            }
+            $sqlassignmentids = 'IN (' . implode(',', $customkeys) . ')';
+        }
+        $dbparams = array_merge(array('status' => ASSIGN_SUBMISSION_STATUS_SUBMITTED), $assignmentidparams, $eparams);
         $rs = $DB->get_recordset_sql('SELECT s.assignment as assignment,
                                              s.userid as userid,
                                              s.id as id,
@@ -592,12 +612,13 @@ function assign_get_grade_details_for_print_overview(&$unmarkedsubmissions, $sql
                                              s.userid = g.userid AND
                                              s.assignment = g.assignment AND
                                              g.attemptnumber = s.attemptnumber
+                                        JOIN (' . $esql . ') e ON e.id = s.userid
                                        WHERE
                                              ( g.timemodified is NULL OR
                                              s.timemodified > g.timemodified OR
                                              g.grade IS NULL ) AND
                                              s.timemodified IS NOT NULL AND
-                                             s.status = ? AND
+                                             s.status = :status AND
                                              s.latest = 1 AND
                                              s.assignment ' . $sqlassignmentids, $dbparams);
 
