@@ -409,6 +409,7 @@ class FormulaSymbolFunction extends FormulaSymbol {
         'count' => array('n_args' => array(0, null),'type_args' => 'boolean'),
         'exp' => array('builtin' => 'exp'),
         'floor' => array('builtin' => 'floor'),
+        'has_grade' => array('n_args' => 1),
         'ln' => array('builtin' => 'log'),
         'log' => array('builtin' => 'log'),
         'max' => array('n_args' => array(2, null), 'builtin' => 'max'),
@@ -495,6 +496,10 @@ class FormulaSymbolFunction extends FormulaSymbol {
 
     function eval_sum($args) {
         return array_sum($args);
+    }
+
+    function eval_has_grade($args) {
+        return ( $args[0] != 0 ? 1 : 0);
     }
 
     function n_args($name) {
