@@ -2136,6 +2136,10 @@ class grade_item extends grade_object {
         foreach($useditems as $gi) {
             if (!array_key_exists('gi'.$gi, $params) || is_null($params['gi'.$gi])) {
                 $params['gi'.$gi] = 0;
+                if (preg_match('/has_grade\(\s*##gi'.$gi.'##\s*\)/i', $this->calculation) && ($gi != $this->id)) {
+                    $params['gi'.$gi] = PHP_INT_MAX;
+                    $allinputsnull = false;
+                }
             } else {
                 $params['gi'.$gi] = (float)$params['gi'.$gi];
                 if ($gi != $this->id) {
