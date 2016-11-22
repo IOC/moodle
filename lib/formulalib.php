@@ -388,6 +388,8 @@ class FormulaSymbolId extends FormulaSymbol {
 
 class FormulaSymbolFunction extends FormulaSymbol {
     var $type = 'number';
+    var $hasgrade;
+
     static $functions = array(
         'abs' => array('builtin' => 'abs'),
         'acos' => array('builtin' => 'acos'),
@@ -409,6 +411,7 @@ class FormulaSymbolFunction extends FormulaSymbol {
         'count' => array('n_args' => array(0, null),'type_args' => 'boolean'),
         'exp' => array('builtin' => 'exp'),
         'floor' => array('builtin' => 'floor'),
+        'has_grade' => array('n_args' => 1),
         'ln' => array('builtin' => 'log'),
         'log' => array('builtin' => 'log'),
         'max' => array('n_args' => array(2, null), 'builtin' => 'max'),
@@ -465,8 +468,12 @@ class FormulaSymbolFunction extends FormulaSymbol {
 
     function eval_($vars) {
         $args = array();
+        $this->hasgrade = true;
         foreach ($this->arguments as $argument) {
             $args[] = $argument->eval_($vars);
+            if ($args[0] == -(PHP_INT_MAX - 1)) {
+                $this->hasgrade = false;
+            }
         }
         $name = strtolower($this->value);
         if (!empty(self::$functions[$name]['builtin'])) {
@@ -495,6 +502,10 @@ class FormulaSymbolFunction extends FormulaSymbol {
 
     function eval_sum($args) {
         return array_sum($args);
+    }
+
+    function eval_has_grade($args) {
+        return intval($this->hasgrade);
     }
 
     function n_args($name) {
