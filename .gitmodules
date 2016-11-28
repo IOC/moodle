@@ -139,3 +139,9 @@
 [submodule "plagiarism/urkund"]
 	path = plagiarism/urkund
 	url = https://github.com/danmarsden/moodle-plagiarism_urkund.git
+[submodule "blocks/mrbs"]
+	path = blocks/mrbs
+	url = https://github.com/arborrow/moodle-block_mrbs.git
+[submodule "mod/reservation"]
+	path = mod/reservation
+	url = https://github.com/bobopinna/moodle-mod_reservation.git
