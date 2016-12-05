@@ -75,11 +75,18 @@ define(['jquery', 'core/templates', 'core/notification', 'core/yui'], function($
                     $(commentOptionId).click(function() {
                         var remarkTextArea = $('#' + remarkId);
                         var remarkText = remarkTextArea.val();
+                        var parsedDescription;
 
                         // Add line break if the current value of the remark text is not empty.
                         if ($.trim(remarkText) !== '') {
                             remarkText += '\n';
                         }
+
+                        parsedDescription = $.parseHTML(comment.description);
+                        if (parsedDescription[0]) {
+                            comment.description = parsedDescription[0].textContent;
+                        }
+
                         remarkText += comment.description;
 
                         remarkTextArea.val(remarkText);
