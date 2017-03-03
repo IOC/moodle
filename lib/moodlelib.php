@@ -6061,6 +6061,7 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         if ($messagehtml) {
             // If html has been given then pass it through the template.
             $context['body'] = $messagehtml;
+            $context['noreply'] = "<br /><br />" . str_repeat('-', 68) . "<br />" . get_string('noreply', 'message');
             $messagehtml = $renderer->render_from_template('core/email_html', $context);
 
         } else {
@@ -6068,6 +6069,7 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
             // auto convert the text to html and then wrap it.
             $autohtml = trim(text_to_html($messagetext));
             $context['body'] = $autohtml;
+            $context['noreply'] = "<br /><br />" . str_repeat('-', 68) . "<br />" . get_string('noreply', 'message');
             $temphtml = $renderer->render_from_template('core/email_html', $context);
             if ($autohtml != $temphtml) {
                 $messagehtml = $temphtml;
@@ -6076,6 +6078,7 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
     }
 
     $context['body'] = $messagetext;
+    $context['noreply'] = "\n\n" . str_repeat('-', 68) . "\n" . get_string('noreply', 'message');
     $mail->Subject = $renderer->render_from_template('core/email_subject', $context);
     $mail->FromName = $renderer->render_from_template('core/email_fromname', $context);
     $messagetext = $renderer->render_from_template('core/email_text', $context);
