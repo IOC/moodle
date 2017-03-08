@@ -245,6 +245,12 @@ define('PARAM_URL',      'url');
 define('PARAM_USERNAME',    'username');
 
 /**
+ * PARAM_USERNAME_IOC - Clean username to only contains allowed characters. This is to be used ONLY when manually creating user
+ * accounts, do NOT use when syncing with external systems!!
+ */
+define('PARAM_USERNAME_IOC',    'usernameioc');
+
+/**
  * PARAM_STRINGID - used to check if the given string is valid string identifier for get_string()
  */
 define('PARAM_STRINGID',    'stringid');
@@ -1205,6 +1211,17 @@ function clean_param($param, $type) {
                 // Regular expression, eliminate all chars EXCEPT:
                 // alphanum, dash (-), underscore (_), at sign (@) and period (.) characters.
                 $param = preg_replace('/[^-\.@_a-z0-9]/', '', $param);
+            }
+            return $param;
+
+        case PARAM_USERNAME_IOC:
+            $param = fix_utf8($param);
+            $param = trim($param);
+            if (empty($CFG->extendedusernamechars)) {
+                $param = str_replace(" " , "", $param);
+                // Regular expression, eliminate all chars EXCEPT:
+                // alphanum, dash (-), underscore (_), at sign (@) and period (.) characters.
+                $param = preg_replace('/[^-\.@_A-Za-z0-9]/', '', $param);
             }
             return $param;
 
