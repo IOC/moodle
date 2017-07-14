@@ -573,8 +573,6 @@ function assign_page_type_list($pagetype, $parentcontext, $currentcontext) {
 function assign_print_overview($courses, &$htmlarray) {
     global $CFG, $DB;
 
-    debugging('The function assign_print_overview() is now deprecated.', DEBUG_DEVELOPER);
-
     if (empty($courses) || !is_array($courses) || count($courses) == 0) {
         return true;
     }
@@ -721,8 +719,6 @@ function assign_get_mysubmission_details_for_print_overview(&$mysubmissions, $sq
                                                             $assignment) {
     global $USER, $DB;
 
-    debugging('The function assign_get_mysubmission_details_for_print_overview() is now deprecated.', DEBUG_DEVELOPER);
-
     if ($assignment->nosubmissions) {
         // Offline assignment. No need to display alerts for offline assignments.
         return false;
@@ -811,8 +807,6 @@ function assign_get_mysubmission_details_for_print_overview(&$mysubmissions, $sq
 function assign_get_grade_details_for_print_overview(&$unmarkedsubmissions, $sqlassignmentids, $assignmentidparams,
                                                      $assignment, $context) {
     global $DB;
-
-    debugging('The function assign_get_grade_details_for_print_overview() is now deprecated.', DEBUG_DEVELOPER);
 
     if (!isset($unmarkedsubmissions)) {
         // Build up and array of unmarked submissions indexed by assignment id/ userid
