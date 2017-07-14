@@ -572,8 +572,6 @@ function lesson_user_complete($course, $user, $mod, $lesson) {
 function lesson_print_overview($courses, &$htmlarray) {
     global $USER, $CFG, $DB, $OUTPUT;
 
-    debugging('The function lesson_print_overview() is now deprecated.', DEBUG_DEVELOPER);
-
     if (!$lessons = get_all_instances_in_courses('lesson', $courses)) {
         return;
     }

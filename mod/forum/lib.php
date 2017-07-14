@@ -1435,8 +1435,6 @@ function forum_is_user_group_discussion(cm_info $cm, $discussiongroupid) {
 function forum_print_overview($courses,&$htmlarray) {
     global $USER, $CFG, $DB, $SESSION;
 
-    debugging('The function forum_print_overview() is now deprecated.', DEBUG_DEVELOPER);
-
     if (empty($courses) || !is_array($courses) || count($courses) == 0) {
         return array();
     }
