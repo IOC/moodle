@@ -85,7 +85,7 @@ class manager {
                 $eventdata->courseid
                 )->trigger();
 
-            if ($savemessage->notification or empty($CFG->messaging)) {
+            if ($savemessage->notification) {
                 // If they have deselected all processors and its a notification mark it read. The user doesn't want to be bothered.
                 // The same goes if the messaging is completely disabled.
                 // We cannot insert directly to the message_read table because we want to get all events in proper order!
@@ -156,13 +156,7 @@ class manager {
             $eventdata->courseid
             )->trigger();
 
-        if (empty($CFG->messaging)) {
-            // If messaging is disabled and they previously had forum notifications handled by the popup processor
-            // or any processor that puts a row in message_working then the notification will remain forever
-            // unread. To prevent this mark the message read if messaging is disabled.
-            $messageid = message_mark_message_read($savemessage, time());
-
-        } else if ($failed) {
+        if ($failed) {
             // Something failed, better keep it as unread then.
             $messageid = $savemessage->id;
 
