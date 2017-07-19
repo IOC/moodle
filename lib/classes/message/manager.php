@@ -85,7 +85,7 @@ class manager {
                 $eventdata->courseid
                 )->trigger();
 
-            if ($savemessage->notification or empty($CFG->messaging)) {
+            if ($savemessage->notification) {
                 // If they have deselected all processors and its a notification mark it read. The user doesn't want to be bothered.
                 // The same goes if the messaging is completely disabled.
                 // We cannot insert directly to the message_read table because we want to get all events in proper order!
