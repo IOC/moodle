@@ -94,7 +94,7 @@ class manager {
                 )->trigger();
             }
 
-            if ($eventdata->notification or empty($CFG->messaging)) {
+            if ($eventdata->notification) {
                 // If they have deselected all processors and its a notification mark it read. The user doesn't want to be bothered.
                 // The same goes if the messaging is completely disabled.
                 if ($eventdata->notification) {
@@ -169,16 +169,6 @@ class manager {
             )->trigger();
         }
 
-        if (empty($CFG->messaging)) {
-            // If they have deselected all processors and its a notification mark it read. The user doesn't want to be bothered.
-            // The same goes if the messaging is completely disabled.
-            if ($eventdata->notification) {
-                $savemessage->timeread = null;
-                \core_message\api::mark_notification_as_read($savemessage);
-            } else {
-                \core_message\api::mark_message_as_read($eventdata->userto->id, $savemessage);
-            }
-        }
 
         return $savemessage->id;
     }
