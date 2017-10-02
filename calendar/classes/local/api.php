@@ -117,7 +117,7 @@ class api {
      * @param int|null $timesortfrom The start timesort value (inclusive)
      * @param int|null $timesortto The end timesort value (inclusive)
      * @param int|null $aftereventid Only return events after this one
-     * @param int $limitnum Limit results to this amount (between 1 and 50)
+     * @param int $limitnum Limit results to this amount (between 1 and 480)
      * @return array A list of action_event_interface objects
      * @throws \moodle_exception
      */
@@ -133,8 +133,8 @@ class api {
             throw new \moodle_exception("Must provide a timesort to and/or from value");
         }
 
-        if ($limitnum < 1 || $limitnum > 50) {
-            throw new \moodle_exception("Limit must be between 1 and 50 (inclusive)");
+        if ($limitnum < 1 || $limitnum > 480) {
+            throw new \moodle_exception("Limit must be between 1 and 480 (inclusive)");
         }
 
         $vault = \core_calendar\local\event\container::get_event_vault();
@@ -155,7 +155,7 @@ class api {
      * @param int|null $timesortfrom The start timesort value (inclusive)
      * @param int|null $timesortto The end timesort value (inclusive)
      * @param int|null $aftereventid Only return events after this one
-     * @param int $limitnum Limit results to this amount (between 1 and 50)
+     * @param int $limitnum Limit results to this amount (between 1 and 480)
      * @return array A list of action_event_interface objects
      * @throws limit_invalid_parameter_exception
      */
@@ -168,9 +168,9 @@ class api {
     ) {
         global $USER;
 
-        if ($limitnum < 1 || $limitnum > 50) {
+        if ($limitnum < 1 || $limitnum > 480) {
             throw new limit_invalid_parameter_exception(
-                "Limit must be between 1 and 50 (inclusive)");
+                "Limit must be between 1 and 480 (inclusive)");
         }
 
         $vault = \core_calendar\local\event\container::get_event_vault();
@@ -195,7 +195,7 @@ class api {
      * @param array $courses The courses the events must belong to
      * @param int|null $timesortfrom The start timesort value (inclusive)
      * @param int|null $timesortto The end timesort value (inclusive)
-     * @param int $limitnum Limit results per course to this amount (between 1 and 50)
+     * @param int $limitnum Limit results per course to this amount (between 1 and 480)
      * @return array A list of action_event_interface objects indexed by course id
      */
     public static function get_action_events_by_courses(
