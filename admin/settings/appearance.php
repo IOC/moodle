@@ -142,6 +142,12 @@ preferences,moodle|/user/preferences.php|preferences',
     $temp->add(new admin_setting_configcheckbox('calendar_showicalsource', new lang_string('configshowicalsource', 'admin'), new lang_string('helpshowicalsource','admin'), 1));
     $ADMIN->add('appearance', $temp);
 
+    $options = array();
+    for ($i=40; $i<=480; $i+=40) {
+        $options[$i] = $i;
+    }
+    $temp->add(new admin_setting_configselect('calendar_maxevents_returned',new lang_string('configmaxeventsreturned','admin'),new lang_string('helpmaxeventsreturned', 'admin'),40,$options));
+
     // blog
     $temp = new admin_settingpage('blog', new lang_string('blog','blog'), 'moodle/site:config', empty($CFG->enableblogs));
     $temp->add(new admin_setting_configcheckbox('useblogassociations', new lang_string('useblogassociations', 'blog'), new lang_string('configuseblogassociations','blog'), 1));
