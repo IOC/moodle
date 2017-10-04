@@ -892,7 +892,7 @@ class core_course_renderer extends plugin_renderer_base {
         $output .= html_writer::div('', $indentclasses);
 
         // Start a wrapper for the actual content to keep the indentation consistent
-        $output .= html_writer::start_tag('div');
+        $output .= html_writer::start_tag('div', array('class' => 'mod-restriction'));
 
         // Display the link to the module (or do nothing if module has no url)
         $cmname = $this->course_section_cm_name($mod, $displayoptions);
