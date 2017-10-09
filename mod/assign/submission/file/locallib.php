@@ -604,6 +604,10 @@ class assign_submission_file extends assign_submission_plugin {
         return (array) $configs;
     }
 
+    public function is_convertible() {
+        return true;
+    }
+
     /**
      * Get the type sets configured for this assignment.
      *

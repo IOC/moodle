@@ -181,7 +181,7 @@ EOD;
         $converter = new \core_files\converter();
         // Ask each plugin for it's list of files.
         foreach ($assignment->get_submission_plugins() as $plugin) {
-            if ($plugin->is_enabled() && $plugin->is_visible()) {
+            if ($plugin->is_enabled() && $plugin->is_visible() && $plugin->is_convertible()) {
                 $pluginfiles = $plugin->get_files($submission, $user);
                 foreach ($pluginfiles as $filename => $file) {
                     if ($file instanceof \stored_file) {
