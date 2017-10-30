@@ -186,6 +186,7 @@ class question_engine_data_mapper {
                 $value = (string) $value;
             }
 
+            $value = preg_replace('/’/', '\'', $value);
             $data = new stdClass();
             $data->attemptstepid = $stepid;
             $data->name = $name;
