@@ -377,7 +377,7 @@ class assign_feedback_comments extends assign_feedback_plugin {
         if ($feedbackcomments) {
             return format_text($feedbackcomments->commenttext,
                                $feedbackcomments->commentformat,
-                               array('context' => $this->assignment->get_context()));
+                               array('context' => $this->assignment->get_context(), 'noclean' => true));
         }
         return '';
     }
