@@ -1,0 +1,40 @@
+// Post SCSS for the theme.
+
+nav {
+    &.fixed-top {
+        background-color: #000;
+    }
+    .navbar-nav {
+        .popover-region-notifications,
+        .popover-region-mail {
+            .icon {
+                color: #fff;
+            }
+        }
+        .dropdown {
+            .dropdown-toggle {
+                &:hover {
+                    &:after {
+                        color: #fff;
+                    }
+                }
+                &:after {
+                    color: #fff;
+                }
+            }
+            a {
+                &.dropdown-item:hover,
+                &.dropdown-item:focus {
+                    background-color: #00699e;
+                    .menu-action-text,
+                    .icon {
+                        color: #fff;
+                    }
+                }
+                .usertext {
+                    color: #fff;
+                }
+            }
+        }
+    }
+}
