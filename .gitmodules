@@ -169,3 +169,9 @@
 [submodule "mod/journal"]
 	path = mod/journal
 	url = https://github.com/elearningsoftware/moodle-mod_journal.git
+[submodule "theme/catala"]
+	path = theme/catala
+	url = https://gitlab.com/reskity/moodle-theme_catala.git
+[submodule "course/format/catala"]
+	path = course/format/catala
+	url = https://gitlab.com/reskity/moodle-courseformat_catala.git
