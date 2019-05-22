@@ -133,6 +133,7 @@ preferences,moodle|/user/preferences.php|preferences',
             90  => new lang_string('numdays', '', 90),
             60  => new lang_string('numdays', '', 60),
             30  => new lang_string('numdays', '', 30),
+            15  => new lang_string('numdays', '', 15),
             5  => new lang_string('numdays', '', 5));
     $temp->add(new admin_setting_configcheckbox('calendar_customexport', new lang_string('configcalendarcustomexport', 'admin'), new lang_string('helpcalendarcustomexport','admin'), 1));
     $temp->add(new admin_setting_configselect('calendar_exportlookahead', new lang_string('configexportlookahead','admin'), new lang_string('helpexportlookahead', 'admin'), 365, $days));

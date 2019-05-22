@@ -9,6 +9,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $username = optional_param('username', '', PARAM_TEXT);
 $authtoken = required_param('authtoken', PARAM_ALPHANUM);
 $generateurl = optional_param('generateurl', '', PARAM_TEXT);
+$coursestoexport = optional_param('coursestoexport', '', PARAM_SEQUENCE);
 
 if (empty($CFG->enablecalendarexport)) {
     die('no export');
@@ -40,7 +41,7 @@ $time = optional_param('preset_time', 'weeknow', PARAM_ALPHA);
 $now = $calendartype->timestamp_to_date_array(time());
 
 // Let's see if we have sufficient and correct data
-$allowed_what = array('all', 'user', 'groups', 'courses');
+$allowed_what = array('all', 'user', 'groups', 'courses', 'selectedcourses');
 $allowed_time = array('weeknow', 'weeknext', 'monthnow', 'monthnext', 'recentupcoming', 'custom');
 
 if (!empty($generateurl)) {
@@ -60,6 +61,10 @@ if (!empty($generateurl)) {
 if(!empty($what) && !empty($time)) {
     if(in_array($what, $allowed_what) && in_array($time, $allowed_time)) {
         $courses = enrol_get_users_courses($user->id, true, 'id, visible, shortname');
+        if (!empty($coursestoexport)) {
+            $filtercourses = explode(',', $coursestoexport);
+            $courses = array_intersect_key($courses, array_flip($filtercourses));
+        }
         // Array of courses that we will pass to calendar_get_legacy_events() which
         // is initially set to the list of the user's courses.
         $paramcourses = $courses;

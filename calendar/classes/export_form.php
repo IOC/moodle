@@ -42,7 +42,7 @@ class core_calendar_export_form extends moodleform {
      * @throws coding_exception
      */
     public function definition() {
-        global $CFG, $OUTPUT;
+        global $CFG, $OUTPUT, $USER;
         $mform = $this->_form;
 
         $mform->addElement('html', $OUTPUT->doc_link('calendar/export', get_string('exporthelp', 'calendar'), true));
@@ -50,6 +50,7 @@ class core_calendar_export_form extends moodleform {
         $export = array();
         $export[] = $mform->createElement('radio', 'exportevents', '', get_string('eventsall', 'calendar'), 'all');
         $export[] = $mform->createElement('radio', 'exportevents', '', get_string('eventsrelatedtocourses', 'calendar'), 'courses');
+        $export[] = $mform->createElement('radio', 'exportevents', '', get_string('eventsfromcourses', 'calendar'), 'selectedcourses');
         $export[] = $mform->createElement('radio', 'exportevents', '', get_string('eventsrelatedtogroups', 'calendar'), 'groups');
         $export[] = $mform->createElement('radio', 'exportevents', '', get_string('eventspersonal', 'calendar'), 'user');
 
@@ -84,6 +85,18 @@ class core_calendar_export_form extends moodleform {
         $mform->addGroup($range, 'period', get_string('timeperiod', 'calendar'), '<br/>');
         $mform->addGroupRule('period', get_string('required'), 'required');
         $mform->setDefault('period', 'recentupcoming');
+
+        $courses = enrol_get_users_courses($USER->id, true, null, 'fullname');
+        $courses = array_map(function($course) {
+            return $course->fullname;
+        }, $courses);
+
+        $options = array(
+            'multiple' => true
+        );
+        $select = $mform->createElement('autocomplete', 'coursestoexport', get_string('eventsfromcoursestoexport', 'calendar'), $courses, $options);
+        $mform->disabledIf('coursestoexport', 'events[exportevents]', 'neq', 'selectedcourses');
+        $mform->addElement($select);
 
         $buttons = array();
         $buttons[] = $mform->createElement('submit', 'generateurl', get_string('generateurlbutton', 'calendar'));
