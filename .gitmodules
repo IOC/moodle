@@ -168,13 +168,13 @@
 	url = https://github.com/elearningsoftware/moodle-mod_journal.git
 [submodule "theme/cre"]
 	path = theme/cre
-	url = git@git.itteria.cat:ENS/PHP/moodle-theme_cre.git
+	url = git@gitlab.ticxcat.cat:ENS/1148/theme_cre.git
 [submodule "course/format/cre"]
 	path = course/format/cre
-	url = git@git.itteria.cat:ENS/PHP/moodle-courseformat_cre.git
+	url = git@gitlab.ticxcat.cat:ENS/1148/format_cre.gitt
 [submodule "local/xp"]
 	path = local/xp
-	url = git@git.itteria.cat:ENS/PHP/moodle-local_xp.git
+	url = git@gitlab.ticxcat.cat:ENS/1148/local_xp.git
 [submodule "admin/tool/dataparticipants"]
 	path = admin/tool/dataparticipants
 	url = https://github.com/IOC/moodle-tool_dataparticipants.git
