@@ -171,7 +171,7 @@
 	url = git@gitlab.ticxcat.cat:ENS/1148/theme_cre.git
 [submodule "course/format/cre"]
 	path = course/format/cre
-	url = git@gitlab.ticxcat.cat:ENS/1148/format_cre.gitt
+	url = git@gitlab.ticxcat.cat:ENS/1148/format_cre.git
 [submodule "local/xp"]
 	path = local/xp
 	url = git@gitlab.ticxcat.cat:ENS/1148/local_xp.git
